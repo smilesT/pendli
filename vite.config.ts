@@ -9,7 +9,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw-custom.ts',
       includeAssets: ['favicon.svg', 'icons/*.png'],
       manifest: {
         name: 'pendli — ÖV-Tagesplaner',
@@ -25,20 +27,30 @@ export default defineConfig({
           { src: '/pendli/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: '/pendli/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/pendli/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/transport\.opendata\.ch\/v1\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'transport-api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 }
-            }
+        ],
+        share_target: {
+          action: '/pendli/import',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [{
+              name: 'calendar',
+              accept: ['text/calendar', '.ics']
+            }]
           }
-        ]
+        },
+        file_handlers: [{
+          action: '/pendli/import',
+          accept: {
+            'text/calendar': ['.ics']
+          }
+        }]
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
       }
     })
   ]

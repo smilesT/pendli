@@ -13,7 +13,7 @@ export function Footer() {
             transport.opendata.ch
           </a>
         </p>
-        <p className="text-warm-white/20 text-[10px] mt-1">v0.1.0</p>
+        <p className="text-warm-white/20 text-[10px] mt-1">v0.2.0</p>
       </div>
     </footer>
   );

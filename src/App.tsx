@@ -7,6 +7,8 @@ import { FileUploader } from './components/upload/FileUploader.tsx';
 import { CalendarPreview } from './components/upload/CalendarPreview.tsx';
 import { ManualEntryForm } from './components/upload/ManualEntryForm.tsx';
 import { DayTimeline } from './components/planner/DayTimeline.tsx';
+import { PlanActions } from './components/planner/PlanActions.tsx';
+import { ImportHandler } from './components/import/ImportHandler.tsx';
 import type { ResolvedLocation, UserConfig, WorkSchedule, Appointment } from './types/index.ts';
 import { useState } from 'react';
 
@@ -198,6 +200,8 @@ function ResultStep() {
     <div className="space-y-6">
       <DayTimeline plan={dayPlan} />
 
+      <PlanActions plan={dayPlan} />
+
       <div className="flex gap-3">
         <button
           type="button"
@@ -223,6 +227,18 @@ function ResultStep() {
 
 export default function App() {
   const currentStep = useAppStore((s) => s.currentStep);
+
+  // Handle /import route (Share Target / File Handler)
+  const isImportRoute = typeof globalThis.location !== 'undefined' &&
+    globalThis.location.pathname.endsWith('/import');
+
+  if (isImportRoute) {
+    return (
+      <Layout currentStep="import">
+        <ImportHandler />
+      </Layout>
+    );
+  }
 
   return (
     <Layout currentStep={currentStep}>
