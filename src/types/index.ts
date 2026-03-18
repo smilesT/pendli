@@ -36,6 +36,7 @@ export interface RouteSegment {
   duration: number;
   connections: Connection[];
   status: 'ok' | 'tight' | 'impossible';
+  segmentType: 'travel' | 'return-to-base' | 'wait';
 }
 
 export interface Connection {

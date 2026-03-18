@@ -43,7 +43,7 @@ async function rateLimitedFetch(url: string): Promise<Response> {
     if (response.status === 429) {
       // Rate limited — wait and retry once
       await new Promise((r) => setTimeout(r, 2000));
-      return fetch(url);
+      return await fetch(url);
     }
     return response;
   } finally {
@@ -62,13 +62,17 @@ export async function searchLocations(
   const cached = locationCache.get(query);
   if (cached) return cached;
 
-  const url = `${BASE_URL}/locations?query=${encodeURIComponent(query)}&type=all`;
-  const response = await rateLimitedFetch(url);
-  const data: LocationsResponse = await response.json();
-  const results = data.stations || [];
+  try {
+    const url = `${BASE_URL}/locations?query=${encodeURIComponent(query)}&type=all`;
+    const response = await rateLimitedFetch(url);
+    const data: LocationsResponse = await response.json();
+    const results = data.stations || [];
 
-  locationCache.set(query, results);
-  return results;
+    locationCache.set(query, results);
+    return results;
+  } catch {
+    return [];
+  }
 }
 
 // --- Debounced Location Search ---
@@ -174,8 +178,8 @@ export function transportLocationToResolved(
 ): ResolvedLocation {
   return {
     name: loc.name,
-    latitude: loc.coordinate.x,
-    longitude: loc.coordinate.y,
+    latitude: loc.coordinate?.x ?? 0,
+    longitude: loc.coordinate?.y ?? 0,
     station: loc.name,
     stationId: loc.id || undefined,
   };
@@ -248,12 +252,12 @@ function formatLineName(category: string, number: string): string {
 
 function mapConnection(conn: TransportConnection): Connection[] {
   return conn.sections
-    .filter((s) => s.journey !== null)
+    .filter((s) => s.journey !== null && s.departure.departure != null && s.arrival.arrival != null)
     .map((section) => ({
       departure: section.departure.station.name,
       arrival: section.arrival.station.name,
-      departureTime: new Date(section.departure.departure || ''),
-      arrivalTime: new Date(section.arrival.arrival || ''),
+      departureTime: new Date(section.departure.departure!),
+      arrivalTime: new Date(section.arrival.arrival!),
       line: formatLineName(section.journey!.category, section.journey!.number),
       platform: section.departure.platform || undefined,
       operator: section.journey!.operator?.trim() || undefined,
@@ -267,16 +271,18 @@ export interface ConnectionResult {
 }
 
 // --- Get best connection for a route ---
-// isArrivalTime=true:  find latest departure that still arrives before targetTime (max time at origin)
-// isArrivalTime=false: find shortest trip departing after targetTime (fastest home)
+// isArrivalTime=true:  find latest departure (after earliestDeparture) that arrives before targetTime
+// isArrivalTime=false: find earliest arrival departing after targetTime
 export async function getBestConnection(
   from: string,
   to: string,
   date: string,
   time: string,
   isArrivalTime = true,
-  bufferMinutes = 0
+  bufferMinutes = 0,
+  earliestDeparture?: Date
 ): Promise<ConnectionResult | null> {
+  try {
   const params = new URLSearchParams({
     from,
     to,
@@ -293,55 +299,97 @@ export async function getBestConnection(
 
   const targetMs = new Date(`${date}T${time}:00`).getTime();
   const bufferMs = bufferMinutes * 60 * 1000;
+  const earliestMs = earliestDeparture ? earliestDeparture.getTime() : 0;
 
   if (isArrivalTime) {
-    // Arriving TO an appointment: pick the latest departure that arrives with buffer
-    // API returns connections sorted by departure (earliest first)
-    // We want the LAST one that arrives before (targetTime - buffer)
     const deadline = targetMs - bufferMs;
 
+    // Filter: only connections that depart AFTER earliestDeparture
+    const viable = data.connections.filter((conn) => {
+      const dep = new Date(conn.from.departure || '').getTime();
+      return dep >= earliestMs;
+    });
+
+    // Among viable: pick latest departure that arrives before deadline
     let best: TransportConnection | null = null;
-    for (const conn of data.connections) {
+    for (const conn of viable) {
       const arrival = new Date(conn.to.arrival || '').getTime();
       if (arrival <= deadline) {
-        // This connection arrives on time — keep it (later ones override earlier)
         best = conn;
       }
     }
 
-    // If no connection meets the buffer, take the one arriving closest to target
-    if (!best) {
-      best = data.connections.reduce((a, b) => {
-        const aArr = new Date(a.to.arrival || '').getTime();
-        const bArr = new Date(b.to.arrival || '').getTime();
-        // Prefer the one closest to (but not after) the target time
-        const aDiff = targetMs - aArr;
-        const bDiff = targetMs - bArr;
-        if (aDiff >= 0 && bDiff >= 0) return aDiff < bDiff ? a : b; // both before: pick latest
-        if (aDiff >= 0) return a; // only a is before
-        if (bDiff >= 0) return b; // only b is before
-        return Math.abs(aDiff) < Math.abs(bDiff) ? a : b; // both after: pick closest
+    // Fallback among viable: closest arrival to target
+    if (!best && viable.length > 0) {
+      best = viable.reduce((a, b) => {
+        const aDiff = targetMs - new Date(a.to.arrival || '').getTime();
+        const bDiff = targetMs - new Date(b.to.arrival || '').getTime();
+        if (aDiff >= 0 && bDiff >= 0) return aDiff < bDiff ? a : b;
+        if (aDiff >= 0) return a;
+        if (bDiff >= 0) return b;
+        return Math.abs(aDiff) < Math.abs(bDiff) ? a : b;
       });
     }
 
+    // Last resort: if no viable connections (all depart before earliestDeparture),
+    // we need a second API call starting from earliestDeparture
+    if (!best) {
+      const fallbackTime = earliestDeparture
+        ? formatTime24(earliestDeparture)
+        : time;
+      const params2 = new URLSearchParams({
+        from,
+        to,
+        date,
+        time: fallbackTime,
+        isArrivalTime: '0', // search by departure time instead
+        limit: '4',
+      });
+      const url2 = `${BASE_URL}/connections?${params2}`;
+      const response2 = await rateLimitedFetch(url2);
+      const data2: ConnectionsResponse = await response2.json();
+      if (data2.connections && data2.connections.length > 0) {
+        // Pick the one arriving closest to (but ideally before) target
+        best = data2.connections.reduce((a, b) => {
+          const aDiff = targetMs - new Date(a.to.arrival || '').getTime();
+          const bDiff = targetMs - new Date(b.to.arrival || '').getTime();
+          if (aDiff >= 0 && bDiff >= 0) return aDiff < bDiff ? a : b;
+          if (aDiff >= 0) return a;
+          if (bDiff >= 0) return b;
+          return Math.abs(aDiff) < Math.abs(bDiff) ? a : b;
+        });
+      }
+    }
+
+    if (!best) return null;
     return toResult(best);
   } else {
-    // Departing FROM an appointment: pick the shortest trip
+    // Departing FROM an appointment: pick earliest arrival
     const best = data.connections.reduce((a, b) => {
-      const aDur = parseDuration(a.duration);
-      const bDur = parseDuration(b.duration);
-      return aDur <= bDur ? a : b;
+      const aArr = new Date(a.to.arrival || '').getTime() || Infinity;
+      const bArr = new Date(b.to.arrival || '').getTime() || Infinity;
+      return aArr <= bArr ? a : b;
     });
 
     return toResult(best);
   }
+  } catch {
+    return null;
+  }
 }
 
-function toResult(conn: TransportConnection): ConnectionResult {
+function formatTime24(d: Date): string {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function toResult(conn: TransportConnection): ConnectionResult | null {
+  const depTime = conn.from.departure ? new Date(conn.from.departure) : null;
+  const arrTime = conn.to.arrival ? new Date(conn.to.arrival) : null;
+  if (!depTime || !arrTime || isNaN(depTime.getTime()) || isNaN(arrTime.getTime())) return null;
   return {
     connections: mapConnection(conn),
-    departureTime: new Date(conn.from.departure || ''),
-    arrivalTime: new Date(conn.to.arrival || ''),
+    departureTime: depTime,
+    arrivalTime: arrTime,
   };
 }
 

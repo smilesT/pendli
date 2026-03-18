@@ -90,7 +90,13 @@ function ImportStep() {
   const [warnings, setWarnings] = useState<string[]>([]);
 
   function handleImport(newAppointments: Appointment[], newWarnings: string[]) {
-    setAppointments([...appointments, ...newAppointments]);
+    const existing = new Set(
+      appointments.map((a) => `${a.title}|${a.startTime.getTime()}|${a.location}`)
+    );
+    const deduped = newAppointments.filter(
+      (a) => !existing.has(`${a.title}|${a.startTime.getTime()}|${a.location}`)
+    );
+    setAppointments([...appointments, ...deduped]);
     setWarnings((prev) => [...prev, ...newWarnings]);
   }
 
@@ -171,7 +177,7 @@ function PlanStep() {
 }
 
 function ResultStep() {
-  const { dayPlan, setStep, loadDemoData } = useAppStore();
+  const { dayPlan, setStep, setAppointments } = useAppStore();
 
   if (!dayPlan) {
     return (
@@ -196,8 +202,8 @@ function ResultStep() {
         <button
           type="button"
           onClick={() => {
-            loadDemoData();
-            setStep('setup');
+            setAppointments([]);
+            setStep('import');
           }}
           className="flex-1 bg-anthracite text-white py-3 rounded-lg font-medium hover:bg-anthracite/90 transition-colors"
         >

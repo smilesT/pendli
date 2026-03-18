@@ -57,6 +57,7 @@ function parseDate(dateStr: string, timeStr: string): Date {
 }
 
 export function parseCSVFile(content: string): ParseResult {
+  content = content.replace(/^\uFEFF/, '');
   const warnings: string[] = [];
   const appointments: Appointment[] = [];
 

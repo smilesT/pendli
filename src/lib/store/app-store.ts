@@ -114,6 +114,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   calculationProgress: '',
 
   calculatePlan: async () => {
+    if (get().isCalculating) return;
     const { config, appointments } = get();
     if (!config || appointments.length === 0) return;
 
@@ -129,6 +130,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (error) {
       set({
         isCalculating: false,
+        currentStep: 'import',
         calculationProgress: `Fehler: ${error instanceof Error ? error.message : 'Unbekannt'}`,
       });
     }
