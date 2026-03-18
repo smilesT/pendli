@@ -109,12 +109,14 @@ export async function calculateDayPlan(
   config: UserConfig,
   onProgress?: ProgressCallback
 ): Promise<DayPlan> {
-  const sorted = [...appointments].sort(
-    (a, b) => a.startTime.getTime() - b.startTime.getTime()
-  );
+  // Deep-copy appointments to avoid mutating store state
+  const sorted = [...appointments]
+    .map((a) => ({ ...a }))
+    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
   const warnings: string[] = [];
   const segments: RouteSegment[] = [];
+  const segmentGaps: number[] = [];
 
   // Resolve all appointment locations
   for (const apt of sorted) {
@@ -134,6 +136,7 @@ export async function calculateDayPlan(
     return {
       date: sorted[0]?.startTime || new Date(),
       segments: [],
+      segmentGaps: [],
       appointments: sorted,
       warnings,
     };
@@ -154,6 +157,9 @@ export async function calculateDayPlan(
         true
       )
     );
+    segmentGaps.push(1);
+  } else {
+    segmentGaps.push(0);
   }
 
   // Intermediate segments between appointments
@@ -170,6 +176,7 @@ export async function calculateDayPlan(
 
     // Same location -- no travel needed
     if (isSameLocation(curLoc, nextLoc)) {
+      segmentGaps.push(0);
       continue;
     }
 
@@ -191,6 +198,7 @@ export async function calculateDayPlan(
       if (segment.status === 'impossible') {
         warnings.push(t.errors.connectionImpossible(next.title));
       }
+      segmentGaps.push(1);
       continue;
     }
 
@@ -262,11 +270,13 @@ export async function calculateDayPlan(
     if (useBase && toBaseSegment && fromBaseSegment) {
       segments.push(toBaseSegment);
       segments.push(fromBaseSegment);
+      segmentGaps.push(2);
     } else {
       segments.push(directSegment);
       if (directSegment.status === 'impossible') {
         warnings.push(t.errors.connectionImpossible(next.title));
       }
+      segmentGaps.push(1);
     }
   }
 
@@ -285,11 +295,15 @@ export async function calculateDayPlan(
         false
       )
     );
+    segmentGaps.push(1);
+  } else {
+    segmentGaps.push(0);
   }
 
   return {
     date: validApts[0].startTime,
     segments,
+    segmentGaps,
     appointments: sorted,
     warnings,
   };

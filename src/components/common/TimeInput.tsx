@@ -7,8 +7,8 @@ interface TimeInputProps {
 export function TimeInput({ label, value, onChange }: TimeInputProps) {
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     let v = e.target.value.replace(/[^0-9:]/g, '');
-    // Auto-insert colon after 2 digits
-    if (v.length === 2 && !v.includes(':')) v += ':';
+    // Auto-insert colon after 2 digits (only when adding, not deleting)
+    if (v.length === 2 && !v.includes(':') && v.length > value.length) v += ':';
     if (v.length > 5) v = v.slice(0, 5);
     onChange(v);
   }

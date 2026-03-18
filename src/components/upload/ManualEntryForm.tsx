@@ -78,7 +78,12 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
             placeholder="09:00"
             maxLength={5}
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+            onChange={(e) => {
+              let v = e.target.value.replace(/[^0-9:]/g, '');
+              if (v.length === 2 && !v.includes(':') && v.length > startTime.length) v += ':';
+              if (v.length > 5) v = v.slice(0, 5);
+              setStartTime(v);
+            }}
             className="w-full px-3 py-2 input-base font-mono text-center"
             required
           />
@@ -93,7 +98,12 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
             placeholder="10:00"
             maxLength={5}
             value={endTime}
-            onChange={(e) => setEndTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+            onChange={(e) => {
+              let v = e.target.value.replace(/[^0-9:]/g, '');
+              if (v.length === 2 && !v.includes(':') && v.length > endTime.length) v += ':';
+              if (v.length > 5) v = v.slice(0, 5);
+              setEndTime(v);
+            }}
             className="w-full px-3 py-2 input-base font-mono text-center"
             required
           />

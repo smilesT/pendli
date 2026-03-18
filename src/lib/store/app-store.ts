@@ -53,43 +53,50 @@ const DEFAULT_CONFIG: UserConfig = {
   bufferMinutes: 10,
 };
 
-const DEMO_APPOINTMENTS: Appointment[] = [
-  {
-    id: uuidv4(),
-    title: 'Team Standup',
-    startTime: new Date(2026, 2, 18, 9, 0),
-    endTime: new Date(2026, 2, 18, 10, 0),
-    location: 'ETH Zürich, Rämistrasse 101, 8092 Zürich',
-  },
-  {
-    id: uuidv4(),
-    title: 'Kundentermin',
-    startTime: new Date(2026, 2, 18, 11, 30),
-    endTime: new Date(2026, 2, 18, 12, 30),
-    location: 'Paradeplatz, 8001 Zürich',
-  },
-  {
-    id: uuidv4(),
-    title: 'Zahnarzt',
-    startTime: new Date(2026, 2, 18, 14, 0),
-    endTime: new Date(2026, 2, 18, 15, 0),
-    location: 'Marktgasse 12, 3011 Bern',
-  },
-  {
-    id: uuidv4(),
-    title: 'Fussball-Training',
-    startTime: new Date(2026, 2, 18, 17, 30),
-    endTime: new Date(2026, 2, 18, 18, 30),
-    location: 'Sportanlage Buchlern, Zürich',
-  },
-  {
-    id: uuidv4(),
-    title: 'Kino mit Freunden',
-    startTime: new Date(2026, 2, 18, 20, 0),
-    endTime: new Date(2026, 2, 18, 22, 0),
-    location: 'Arena Cinemas Sihlcity, Zürich',
-  },
-];
+function makeDemoAppointments(): Appointment[] {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const d = today.getDate();
+
+  return [
+    {
+      id: uuidv4(),
+      title: 'Team Standup',
+      startTime: new Date(y, m, d, 9, 0),
+      endTime: new Date(y, m, d, 10, 0),
+      location: 'ETH Zürich, Rämistrasse 101, 8092 Zürich',
+    },
+    {
+      id: uuidv4(),
+      title: 'Kundentermin',
+      startTime: new Date(y, m, d, 11, 30),
+      endTime: new Date(y, m, d, 12, 30),
+      location: 'Paradeplatz, 8001 Zürich',
+    },
+    {
+      id: uuidv4(),
+      title: 'Zahnarzt',
+      startTime: new Date(y, m, d, 14, 0),
+      endTime: new Date(y, m, d, 15, 0),
+      location: 'Marktgasse 12, 3011 Bern',
+    },
+    {
+      id: uuidv4(),
+      title: 'Fussball-Training',
+      startTime: new Date(y, m, d, 17, 30),
+      endTime: new Date(y, m, d, 18, 30),
+      location: 'Sportanlage Buchlern, Zürich',
+    },
+    {
+      id: uuidv4(),
+      title: 'Kino mit Freunden',
+      startTime: new Date(y, m, d, 20, 0),
+      endTime: new Date(y, m, d, 22, 0),
+      location: 'Arena Cinemas Sihlcity, Zürich',
+    },
+  ];
+}
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Config
@@ -144,7 +151,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   loadDemoData: () => {
     set({
       config: DEFAULT_CONFIG,
-      appointments: DEMO_APPOINTMENTS.map((a) => ({ ...a, id: uuidv4() })),
+      appointments: makeDemoAppointments(),
       currentStep: 'import',
     });
   },

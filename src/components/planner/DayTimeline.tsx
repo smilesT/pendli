@@ -15,46 +15,35 @@ export function DayTimeline({ plan }: DayTimelineProps) {
     .filter((a) => a.resolvedLocation)
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
-  // Build timeline: interleave segments and appointments by consuming segments sequentially
+  // Build timeline: interleave segments and appointments using segmentGaps
   const timelineItems: Array<
     { type: 'segment'; data: (typeof segments)[0] } |
     { type: 'appointment'; data: (typeof appointments)[0] }
   > = [];
 
+  const gaps = plan.segmentGaps;
   let segIdx = 0;
 
-  // First segment(s): home -> first appointment
-  if (segments.length > 0 && sortedAppointments.length > 0) {
-    timelineItems.push({ type: 'segment', data: segments[segIdx] });
-    segIdx++;
+  // First gap: home -> first appointment
+  const firstGap = gaps[0] || 0;
+  for (let s = 0; s < firstGap; s++) {
+    if (segIdx < segments.length) {
+      timelineItems.push({ type: 'segment', data: segments[segIdx] });
+      segIdx++;
+    }
   }
 
   for (let i = 0; i < sortedAppointments.length; i++) {
     timelineItems.push({ type: 'appointment', data: sortedAppointments[i] });
 
-    // After each appointment, add all segments until we reach the next appointment's arrival
-    if (i < sortedAppointments.length - 1) {
-      while (segIdx < segments.length - 1) {
+    // Gap after this appointment (gap index = i + 1)
+    const gapCount = gaps[i + 1] || 0;
+    for (let s = 0; s < gapCount; s++) {
+      if (segIdx < segments.length) {
         timelineItems.push({ type: 'segment', data: segments[segIdx] });
         segIdx++;
-        // If this segment arrives at the next appointment location, stop
-        const lastSeg = segments[segIdx - 1];
-        const nextApt = sortedAppointments[i + 1];
-        if (
-          lastSeg.to.name === nextApt.resolvedLocation?.name ||
-          lastSeg.to.station === nextApt.resolvedLocation?.station ||
-          lastSeg.to.stationId === nextApt.resolvedLocation?.stationId
-        ) {
-          break;
-        }
       }
     }
-  }
-
-  // Last segment: last appointment -> home
-  while (segIdx < segments.length) {
-    timelineItems.push({ type: 'segment', data: segments[segIdx] });
-    segIdx++;
   }
 
   return (

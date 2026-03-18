@@ -54,6 +54,7 @@ export interface Connection {
 export interface DayPlan {
   date: Date;
   segments: RouteSegment[];
+  segmentGaps: number[];
   appointments: Appointment[];
   warnings: string[];
 }
