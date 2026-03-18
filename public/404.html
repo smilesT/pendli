@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script>
+    // SPA fallback: redirect to /pendli/ with the path as a query param
+    var path = window.location.pathname;
+    if (path.startsWith('/pendli')) {
+      path = path.slice('/pendli'.length);
+    }
+    window.location.replace('/pendli/' + (path ? '?p=' + encodeURIComponent(path) : ''));
+  </script>
+</head>
+<body></body>
+</html>
