@@ -9,7 +9,6 @@ import { ManualEntryForm } from './components/upload/ManualEntryForm.tsx';
 import { DayTimeline } from './components/planner/DayTimeline.tsx';
 import { PlanActions } from './components/planner/PlanActions.tsx';
 import { ImportHandler } from './components/import/ImportHandler.tsx';
-import { DesignShowcase } from './components/DesignShowcase.tsx';
 import type { ResolvedLocation, UserConfig, WorkSchedule, Appointment } from './types/index.ts';
 import { useState } from 'react';
 
@@ -226,15 +225,8 @@ function ResultStep() {
   );
 }
 
-// Toggle: set to true for design showcase mode, false for normal app
-const DESIGN_SHOWCASE = false;
-
 export default function App() {
   const currentStep = useAppStore((s) => s.currentStep);
-
-  if (DESIGN_SHOWCASE) {
-    return <DesignShowcase />;
-  }
 
   // Handle /import route (Share Target / File Handler)
   const isImportRoute = typeof globalThis.location !== 'undefined' &&
