@@ -124,6 +124,7 @@ export async function resolveLocation(
         latitude: best.coordinate.x,
         longitude: best.coordinate.y,
         station: best.name,
+        stationId: best.id || undefined,
       };
     }
   }
@@ -138,6 +139,7 @@ export async function resolveLocation(
         latitude: best.coordinate?.x ?? 0,
         longitude: best.coordinate?.y ?? 0,
         station: best.name,
+        stationId: best.id || undefined,
       };
     }
   }
@@ -159,6 +161,7 @@ export async function resolveLocation(
         latitude: best.coordinate.x,
         longitude: best.coordinate.y,
         station: best.name,
+        stationId: best.id || undefined,
       };
     }
   }
@@ -174,6 +177,7 @@ export function transportLocationToResolved(
     latitude: loc.coordinate.x,
     longitude: loc.coordinate.y,
     station: loc.name,
+    stationId: loc.id || undefined,
   };
 }
 

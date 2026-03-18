@@ -36,12 +36,14 @@ const DEFAULT_CONFIG: UserConfig = {
     latitude: 47.3914,
     longitude: 8.4889,
     station: 'Zürich Altstetten',
+    stationId: '8503001',
   },
   workAddress: {
-    name: 'ETH Zürich / Universitätsspital',
+    name: 'Zürich, ETH/Universitätsspital',
     latitude: 47.3763,
     longitude: 8.5483,
-    station: 'ETH/Universitätsspital',
+    station: 'Zürich, ETH/Universitätsspital',
+    stationId: '8591123',
   },
   workSchedule: {
     days: [1, 2, 3, 4, 5], // Mo-Fr

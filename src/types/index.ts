@@ -12,6 +12,7 @@ export interface ResolvedLocation {
   latitude: number;
   longitude: number;
   station?: string;
+  stationId?: string;
 }
 
 export interface UserConfig {

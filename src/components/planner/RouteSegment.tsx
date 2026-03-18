@@ -5,11 +5,24 @@ import { StatusBadge } from '../common/StatusBadge.tsx';
 import { ConnectionDetails } from './ConnectionDetails.tsx';
 
 function buildSbbUrl(segment: RouteSegmentType): string {
-  const from = encodeURIComponent(segment.from.station || segment.from.name);
-  const to = encodeURIComponent(segment.to.station || segment.to.name);
-  const date = formatDateISO(segment.departureTime);
-  const time = formatTimeHHMM(segment.departureTime);
-  return `https://www.sbb.ch/de/kaufen/pages/fahrplan/fahrplan.xhtml?von=${from}&nach=${to}&datum=${date}&zeit=${time}`;
+  const fromName = segment.from.station || segment.from.name;
+  const toName = segment.to.station || segment.to.name;
+  const fromId = segment.from.stationId;
+  const toId = segment.to.stationId;
+
+  const fromParam = fromId ? `${fromName}_I${fromId}` : fromName;
+  const toParam = toId ? `${toName}_I${toId}` : toName;
+
+  const hh = String(segment.departureTime.getHours()).padStart(2, '0');
+  const mm = String(segment.departureTime.getMinutes()).padStart(2, '0');
+
+  const params = new URLSearchParams({
+    stops: `${fromParam}~${toParam}`,
+    time: `${hh}_${mm}`,
+    day: formatDateISO(segment.departureTime),
+    moment: 'dep',
+  });
+  return `https://www.sbb.ch/en?${params}`;
 }
 
 interface RouteSegmentProps {
@@ -94,7 +107,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M5 1H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Auf sbb.ch ansehen
+              Auf SBB ansehen
             </a>
           </div>
         )}
