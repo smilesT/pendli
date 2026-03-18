@@ -47,8 +47,8 @@ function SetupStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-anthracite mb-1">Einrichtung</h2>
-        <p className="text-sm text-slate">
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">Einrichtung</h2>
+        <p className="text-sm text-slate dark:text-dark-muted">
           Konfiguriere deine Adressen und Arbeitszeiten.
         </p>
       </div>
@@ -76,7 +76,7 @@ function SetupStep() {
         <button
           type="button"
           onClick={handleDemo}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-sm text-slate hover:text-anthracite hover:border-gray-400 transition-colors"
+          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
         >
           Demo laden
         </button>
@@ -103,8 +103,8 @@ function ImportStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-anthracite mb-1">Termine importieren</h2>
-        <p className="text-sm text-slate">
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">Termine importieren</h2>
+        <p className="text-sm text-slate dark:text-dark-muted">
           Lade deinen Kalender hoch oder füge Termine manuell hinzu.
         </p>
       </div>
@@ -127,7 +127,7 @@ function ImportStep() {
         <button
           type="button"
           onClick={() => setStep('setup')}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-sm text-slate hover:text-anthracite hover:border-gray-400 transition-colors"
+          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
         >
           Zurück
         </button>
@@ -151,7 +151,7 @@ function PlanStep() {
     <div className="flex flex-col items-center justify-center py-16 space-y-6">
       {/* Train animation */}
       <div className="relative w-40 h-16">
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-300" />
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-300 dark:bg-dark-border" />
         <div className="absolute bottom-2 animate-bounce">
           <svg width="64" height="40" viewBox="0 0 64 40" fill="none">
             <rect x="4" y="4" width="56" height="28" rx="4" fill="#EB0000" />
@@ -165,10 +165,10 @@ function PlanStep() {
       </div>
 
       <div className="text-center">
-        <h2 className="text-lg font-bold text-anthracite mb-2">
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-2">
           Route wird berechnet...
         </h2>
-        <p className="text-sm text-slate font-mono animate-pulse">
+        <p className="text-sm text-slate dark:text-dark-muted font-mono animate-pulse">
           {calculationProgress}
         </p>
       </div>
@@ -182,7 +182,7 @@ function ResultStep() {
   if (!dayPlan) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate">Kein Tagesplan vorhanden.</p>
+        <p className="text-slate dark:text-dark-muted">Kein Tagesplan vorhanden.</p>
         <button
           type="button"
           onClick={() => setStep('setup')}
@@ -205,14 +205,14 @@ function ResultStep() {
             setAppointments([]);
             setStep('import');
           }}
-          className="flex-1 bg-anthracite text-white py-3 rounded-lg font-medium hover:bg-anthracite/90 transition-colors"
+          className="flex-1 bg-anthracite dark:bg-dark-border text-white py-3 rounded-lg font-medium hover:bg-anthracite/90 dark:hover:bg-dark-muted transition-colors"
         >
           Neuen Tag planen
         </button>
         <button
           type="button"
           onClick={() => setStep('setup')}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-sm text-slate hover:text-anthracite hover:border-gray-400 transition-colors"
+          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
         >
           Einstellungen
         </button>

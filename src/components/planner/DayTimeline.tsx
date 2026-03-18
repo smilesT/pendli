@@ -59,10 +59,10 @@ export function DayTimeline({ plan }: DayTimelineProps) {
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h2 className="text-lg font-bold text-anthracite">
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text">
           {formatDate(plan.date)}
         </h2>
-        <p className="text-xs text-slate font-mono mt-0.5">
+        <p className="text-xs text-slate dark:text-dark-muted font-mono mt-0.5">
           {sortedAppointments.length} Termine &middot; {segments.length} Verbindungen
         </p>
       </div>
@@ -80,8 +80,8 @@ export function DayTimeline({ plan }: DayTimelineProps) {
 
       <div className="relative">
         <div className="relative pl-10 pb-1">
-          <div className="absolute left-[0.75rem] top-1 w-3 h-3 rounded-sm bg-anthracite" />
-          <p className="text-xs font-medium text-anthracite font-mono">Start: Zuhause</p>
+          <div className="absolute left-[0.75rem] top-1 w-3 h-3 rounded-sm bg-anthracite dark:bg-dark-text" />
+          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">Start: Zuhause</p>
         </div>
 
         {timelineItems.map((item, i) => {
@@ -101,8 +101,8 @@ export function DayTimeline({ plan }: DayTimelineProps) {
         })}
 
         <div className="relative pl-10 pt-2">
-          <div className="absolute left-[0.75rem] top-3 w-3 h-3 rounded-sm bg-anthracite" />
-          <p className="text-xs font-medium text-anthracite font-mono">Ende: Zuhause</p>
+          <div className="absolute left-[0.75rem] top-3 w-3 h-3 rounded-sm bg-anthracite dark:bg-dark-text" />
+          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">Ende: Zuhause</p>
         </div>
       </div>
     </div>

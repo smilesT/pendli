@@ -8,7 +8,7 @@ interface ConnectionDetailsProps {
 export function ConnectionDetails({ connections }: ConnectionDetailsProps) {
   if (connections.length === 0) {
     return (
-      <p className="text-xs text-slate italic px-2 py-1">
+      <p className="text-xs text-slate dark:text-dark-muted italic px-2 py-1">
         Keine ÖV-Verbindung gefunden
       </p>
     );
@@ -23,17 +23,17 @@ export function ConnectionDetails({ connections }: ConnectionDetailsProps) {
           </span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="bg-anthracite text-white px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">
+              <span className="bg-anthracite dark:bg-dark-muted text-white dark:text-dark-bg px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">
                 {conn.line}
               </span>
-              <span className="text-anthracite truncate">
+              <span className="text-anthracite dark:text-dark-text truncate">
                 {conn.departure}
               </span>
               {conn.platform && (
-                <span className="text-slate">Gl. {conn.platform}</span>
+                <span className="text-slate dark:text-dark-muted">Gl. {conn.platform}</span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5 text-slate">
+            <div className="flex items-center gap-1.5 mt-0.5 text-slate dark:text-dark-muted">
               <span className="w-10 text-right font-mono flex-shrink-0">
                 {formatTimeHHMM(conn.arrivalTime)}
               </span>

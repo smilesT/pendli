@@ -15,34 +15,34 @@ export function CalendarPreview({ appointments, onRemove }: CalendarPreviewProps
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium text-anthracite">
+      <h3 className="text-sm font-medium text-anthracite dark:text-dark-text">
         {appointments.length} Termin{appointments.length !== 1 ? 'e' : ''} erkannt
       </h3>
       <div className="space-y-2">
         {sorted.map((apt) => (
           <div
             key={apt.id}
-            className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-between gap-3"
+            className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg px-4 py-3 flex items-center justify-between gap-3"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-sm text-sbb-red font-bold">
                   {formatTimeHHMM(apt.startTime)}
                 </span>
-                <span className="text-slate text-xs">–</span>
-                <span className="font-mono text-sm text-slate">
+                <span className="text-slate dark:text-dark-muted text-xs">–</span>
+                <span className="font-mono text-sm text-slate dark:text-dark-muted">
                   {formatTimeHHMM(apt.endTime)}
                 </span>
               </div>
-              <p className="text-sm font-medium text-anthracite truncate">
+              <p className="text-sm font-medium text-anthracite dark:text-dark-text truncate">
                 {apt.title}
               </p>
-              <p className="text-xs text-slate truncate">{apt.location}</p>
+              <p className="text-xs text-slate dark:text-dark-muted truncate">{apt.location}</p>
             </div>
             <button
               type="button"
               onClick={() => onRemove(apt.id)}
-              className="text-slate hover:text-danger transition-colors p-1 flex-shrink-0"
+              className="text-slate dark:text-dark-muted hover:text-danger transition-colors p-1 flex-shrink-0"
               aria-label={`${apt.title} entfernen`}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

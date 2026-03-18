@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="bg-anthracite text-warm-white/50 py-4 mt-auto">
+    <footer className="bg-anthracite dark:bg-dark-surface text-warm-white/50 py-4 mt-auto">
       <div className="max-w-3xl mx-auto px-4 text-center text-xs font-mono">
         <p>
           pendli &mdash; Daten via{' '}

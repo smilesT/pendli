@@ -64,7 +64,7 @@ export function LocationSearch({
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-sm font-medium text-anthracite mb-1">
+      <label className="block text-sm font-medium text-anthracite dark:text-dark-text mb-1">
         {label}
       </label>
       <div className="relative">
@@ -74,7 +74,7 @@ export function LocationSearch({
           onChange={handleInputChange}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-anthracite placeholder-slate focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red transition-colors"
+          className="w-full px-4 py-2.5 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red transition-colors"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -84,18 +84,18 @@ export function LocationSearch({
       </div>
 
       {isOpen && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <ul className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg shadow-lg max-h-60 overflow-auto">
           {results.map((loc, i) => (
             <li key={`${loc.name}-${i}`}>
               <button
                 type="button"
                 onClick={() => handleSelect(loc)}
-                className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                className="w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-dark-border flex items-center gap-3 transition-colors"
               >
                 <span className="text-lg flex-shrink-0">
                   {loc.type === 'station' ? '\u{1F689}' : '\u{1F4CD}'}
                 </span>
-                <span className="text-sm text-anthracite truncate">
+                <span className="text-sm text-anthracite dark:text-dark-text truncate">
                   {loc.name}
                 </span>
               </button>

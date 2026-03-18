@@ -9,6 +9,13 @@
   --color-warning: #D97706;
   --color-danger: #DC2626;
 
+  --color-dark-bg: #0F0F1A;
+  --color-dark-surface: #1A1A2E;
+  --color-dark-card: #242440;
+  --color-dark-border: #2E2E4A;
+  --color-dark-text: #E8E8F0;
+  --color-dark-muted: #8888A0;
+
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;
 }
@@ -22,46 +29,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Timeline connector line */
-.timeline-line {
-  position: absolute;
-  left: 1.25rem;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background-color: #e2e8f0;
+.dark body, body.dark {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
 }
 
-.timeline-line-dashed {
-  background: repeating-linear-gradient(
-    to bottom,
-    #e2e8f0 0,
-    #e2e8f0 6px,
-    transparent 6px,
-    transparent 12px
-  );
-}
-
-/* Status dot */
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.status-dot-ok { background-color: var(--color-success); }
-.status-dot-tight { background-color: var(--color-warning); }
-.status-dot-impossible { background-color: var(--color-danger); }
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #3a3a5c; }

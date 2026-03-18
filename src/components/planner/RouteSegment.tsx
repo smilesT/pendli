@@ -47,25 +47,25 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
   return (
     <div className="relative pl-10">
       {/* Timeline connector */}
-      <div className={`absolute left-[1.2rem] top-0 bottom-0 w-0.5 ${isReturn ? 'bg-gray-200' : 'bg-gray-300'}`}
+      <div className={`absolute left-[1.2rem] top-0 bottom-0 w-0.5 ${isReturn ? 'bg-gray-200 dark:bg-dark-border' : 'bg-gray-300 dark:bg-dark-border'}`}
         style={isReturn ? { backgroundImage: 'repeating-linear-gradient(to bottom, #e2e8f0 0, #e2e8f0 6px, transparent 6px, transparent 12px)' } : undefined}
       />
 
       {/* Departure dot */}
-      <div className="absolute left-[0.85rem] top-3 w-2.5 h-2.5 rounded-full bg-white border-2 border-gray-400" />
+      <div className="absolute left-[0.85rem] top-3 w-2.5 h-2.5 rounded-full bg-white dark:bg-dark-card border-2 border-gray-400 dark:border-dark-muted" />
 
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full text-left bg-white border border-gray-200 ${borderColor} border-l-4 rounded-lg px-4 py-3 my-2 hover:shadow-sm transition-shadow`}
+        className={`w-full text-left bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border ${borderColor} border-l-4 rounded-lg px-4 py-3 my-2 hover:shadow-sm transition-shadow`}
       >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="font-mono text-sm font-bold text-anthracite">
+            <span className="font-mono text-sm font-bold text-anthracite dark:text-dark-text">
               {formatTimeHHMM(segment.departureTime)}
             </span>
-            <span className="text-slate text-xs">→</span>
-            <span className="font-mono text-sm text-slate">
+            <span className="text-slate dark:text-dark-muted text-xs">→</span>
+            <span className="font-mono text-sm text-slate dark:text-dark-muted">
               {formatTimeHHMM(segment.arrivalTime)}
             </span>
           </div>
@@ -73,16 +73,16 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
         </div>
 
         <div className="mt-1.5 flex items-center gap-2">
-          <span className="text-xs text-anthracite truncate">
+          <span className="text-xs text-anthracite dark:text-dark-text truncate">
             {segment.from.name}
           </span>
-          <span className="text-slate text-xs flex-shrink-0">→</span>
-          <span className="text-xs text-anthracite truncate">
+          <span className="text-slate dark:text-dark-muted text-xs flex-shrink-0">→</span>
+          <span className="text-xs text-anthracite dark:text-dark-text truncate">
             {segment.to.name}
           </span>
         </div>
 
-        <div className="mt-1 flex items-center gap-2 text-xs text-slate">
+        <div className="mt-1 flex items-center gap-2 text-xs text-slate dark:text-dark-muted">
           <span>{routeSummary}</span>
           <span className="font-mono">({durationString(segment.duration)})</span>
           <svg
@@ -95,7 +95,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
         </div>
 
         {isExpanded && (
-          <div className="mt-2 pt-2 border-t border-gray-100" onClick={(e) => e.stopPropagation()}>
+          <div className="mt-2 pt-2 border-t border-gray-100 dark:border-dark-border" onClick={(e) => e.stopPropagation()}>
             <ConnectionDetails connections={segment.connections} />
             <a
               href={buildSbbUrl(segment)}

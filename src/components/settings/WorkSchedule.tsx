@@ -27,7 +27,7 @@ export function WorkScheduleConfig({ schedule, onChange }: WorkScheduleProps) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-anthracite mb-2">
+        <label className="block text-sm font-medium text-anthracite dark:text-dark-text mb-2">
           Arbeitstage
         </label>
         <div className="flex gap-2">
@@ -39,7 +39,7 @@ export function WorkScheduleConfig({ schedule, onChange }: WorkScheduleProps) {
               className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
                 schedule.days.includes(day.value)
                   ? 'bg-sbb-red text-white'
-                  : 'bg-white border border-gray-200 text-slate hover:bg-gray-50'
+                  : 'bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-slate dark:text-dark-muted hover:bg-gray-50 dark:hover:bg-dark-border'
               }`}
             >
               {day.label}

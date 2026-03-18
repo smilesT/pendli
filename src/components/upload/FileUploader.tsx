@@ -66,7 +66,7 @@ export function FileUploader({ onImport }: FileUploaderProps) {
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
           isDragging
             ? 'border-sbb-red bg-sbb-red/5'
-            : 'border-gray-300 hover:border-sbb-red/50 hover:bg-gray-50'
+            : 'border-gray-300 dark:border-dark-border hover:border-sbb-red/50 hover:bg-gray-50 dark:hover:bg-dark-border'
         }`}
       >
         <input
@@ -78,10 +78,10 @@ export function FileUploader({ onImport }: FileUploaderProps) {
         />
 
         <div className="text-4xl mb-3">{isDragging ? '\u{1F4E5}' : '\u{1F4C5}'}</div>
-        <p className="text-sm font-medium text-anthracite">
+        <p className="text-sm font-medium text-anthracite dark:text-dark-text">
           {fileName || 'Kalender-Datei hierher ziehen'}
         </p>
-        <p className="text-xs text-slate mt-1">.ics oder .csv</p>
+        <p className="text-xs text-slate dark:text-dark-muted mt-1">.ics oder .csv</p>
       </div>
 
       {error && (

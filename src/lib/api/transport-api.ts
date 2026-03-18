@@ -393,14 +393,3 @@ function toResult(conn: TransportConnection): ConnectionResult | null {
   };
 }
 
-// Parse "00d01:12:00" → minutes
-function parseDuration(dur: string): number {
-  const match = dur.match(/(\d+)d(\d+):(\d+):(\d+)/);
-  if (match) {
-    return parseInt(match[1]) * 1440 + parseInt(match[2]) * 60 + parseInt(match[3]);
-  }
-  // fallback: "01:12:00"
-  const parts = dur.split(':').map(Number);
-  if (parts.length === 3) return parts[0] * 60 + parts[1];
-  return 9999;
-}

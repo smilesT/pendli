@@ -43,7 +43,7 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="w-full border border-dashed border-gray-300 rounded-lg py-2.5 text-sm text-slate hover:text-anthracite hover:border-gray-400 transition-colors"
+        className="w-full border border-dashed border-gray-300 dark:border-dark-border rounded-lg py-2.5 text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
       >
         + Termin manuell hinzufügen
       </button>
@@ -51,20 +51,20 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg p-4 space-y-3">
       <input
         type="text"
         placeholder="Titel"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
         required
       />
       <input
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
         required
       />
       <div className="flex gap-3">
@@ -72,15 +72,15 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
           type="time"
           value={startTime}
           onChange={(e) => setStartTime(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
           required
         />
-        <span className="self-center text-slate">–</span>
+        <span className="self-center text-slate dark:text-dark-muted">–</span>
         <input
           type="time"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
           required
         />
       </div>
@@ -89,7 +89,7 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
         placeholder="Ort / Adresse"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
         required
       />
       <div className="flex gap-2">
@@ -102,7 +102,7 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
         <button
           type="button"
           onClick={() => setIsOpen(false)}
-          className="px-4 py-2 text-sm text-slate hover:text-anthracite transition-colors"
+          className="px-4 py-2 text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text transition-colors"
         >
           Abbrechen
         </button>
