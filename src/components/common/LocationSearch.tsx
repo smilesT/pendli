@@ -17,7 +17,7 @@ export function LocationSearch({
   label,
   value,
   onChange,
-  placeholder = 'Adresse oder Haltestelle suchen...',
+  placeholder,
 }: LocationSearchProps) {
   const [query, setQuery] = useState(value?.name || '');
   const [results, setResults] = useState<TransportLocation[]>([]);
@@ -74,7 +74,7 @@ export function LocationSearch({
           onChange={handleInputChange}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full px-4 py-2.5 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red transition-colors"
+          className="w-full px-4 py-2.5 input-base placeholder-slate dark:placeholder-dark-muted transition-colors"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">

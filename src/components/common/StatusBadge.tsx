@@ -1,4 +1,5 @@
 import type { RouteSegment } from '../../types/index.ts';
+import { t } from '../../lib/i18n/index.ts';
 
 interface StatusBadgeProps {
   status: RouteSegment['status'];
@@ -6,9 +7,9 @@ interface StatusBadgeProps {
 }
 
 const statusConfig = {
-  ok: { label: 'OK', color: 'bg-success', textColor: 'text-success', emoji: '' },
-  tight: { label: 'Knapp', color: 'bg-warning', textColor: 'text-warning', emoji: '' },
-  impossible: { label: 'Kritisch', color: 'bg-danger', textColor: 'text-danger', emoji: '' },
+  ok: { label: t.status.ok, color: 'bg-success', textColor: 'text-success', emoji: '' },
+  tight: { label: t.status.tight, color: 'bg-warning', textColor: 'text-warning', emoji: '' },
+  impossible: { label: t.status.impossible, color: 'bg-danger', textColor: 'text-danger', emoji: '' },
 };
 
 export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {

@@ -12,10 +12,11 @@ import {
   formatDateISO,
   formatTimeHHMM,
 } from './time-utils.ts';
+import { t } from '../i18n/index.ts';
 
 export type ProgressCallback = (message: string) => void;
 
-// Minimum time at base for a return trip to be worthwhile
+// Minimum dwell time at base for a return trip to be worthwhile
 const MIN_DWELL_AT_BASE = 20; // minutes
 // Below this gap, never consider returning to base
 const MIN_GAP_FOR_BASE_CONSIDERATION = 30; // minutes
@@ -34,7 +35,7 @@ async function calculateSegment(
   segmentType: RouteSegment['segmentType'] = 'travel',
   earliestDeparture?: Date
 ): Promise<RouteSegment> {
-  // Skip if same location
+  // Skip if origin and destination are the same
   if (isSameLocation(from, to)) {
     return {
       from,
@@ -96,6 +97,13 @@ async function calculateSegment(
   };
 }
 
+/** Type guard narrowing an Appointment to one with a resolved location. */
+function hasResolvedLocation(
+  apt: Appointment
+): apt is Appointment & { resolvedLocation: ResolvedLocation } {
+  return apt.resolvedLocation !== undefined;
+}
+
 export async function calculateDayPlan(
   appointments: Appointment[],
   config: UserConfig,
@@ -108,7 +116,7 @@ export async function calculateDayPlan(
   const warnings: string[] = [];
   const segments: RouteSegment[] = [];
 
-  // Resolve all locations
+  // Resolve all appointment locations
   for (const apt of sorted) {
     if (!apt.resolvedLocation) {
       onProgress?.(`Suche Standort: "${apt.location}"...`);
@@ -116,33 +124,31 @@ export async function calculateDayPlan(
       if (resolved) {
         apt.resolvedLocation = resolved;
       } else {
-        warnings.push(
-          `Ort "${apt.location}" für "${apt.title}" konnte nicht aufgelöst werden.`
-        );
+        warnings.push(t.errors.locationNotFound(apt.location, apt.title));
       }
     }
   }
 
-  const validApts = sorted.filter((a) => a.resolvedLocation);
+  const validApts = sorted.filter(hasResolvedLocation);
   if (validApts.length === 0) {
     return {
       date: sorted[0]?.startTime || new Date(),
       segments: [],
       appointments: sorted,
-      warnings: [...warnings, 'Keine Termine mit gültigem Standort gefunden.'],
+      warnings,
     };
   }
 
-  // Segment 0: Home -> first appointment
+  // First segment: home -> first appointment
   const firstApt = validApts[0];
-  if (!isSameLocation(config.homeAddress, firstApt.resolvedLocation!)) {
+  if (!isSameLocation(config.homeAddress, firstApt.resolvedLocation)) {
     onProgress?.(
-      `Suche Verbindung: ${config.homeAddress.name} → ${firstApt.resolvedLocation!.name}...`
+      `Suche Verbindung: ${config.homeAddress.name} → ${firstApt.resolvedLocation.name}...`
     );
     segments.push(
       await calculateSegment(
         config.homeAddress,
-        firstApt.resolvedLocation!,
+        firstApt.resolvedLocation,
         firstApt.startTime,
         config.bufferMinutes,
         true
@@ -150,54 +156,56 @@ export async function calculateDayPlan(
     );
   }
 
-  // Segments between appointments
+  // Intermediate segments between appointments
   for (let i = 0; i < validApts.length - 1; i++) {
     const current = validApts[i];
     const next = validApts[i + 1];
+    const curLoc = current.resolvedLocation;
+    const nextLoc = next.resolvedLocation;
     const gapMinutes = differenceInMinutes(next.startTime, current.endTime);
 
     if (gapMinutes < 0) {
-      warnings.push(`Termine ${current.title} und ${next.title} überlappen sich`);
+      warnings.push(t.errors.appointmentsOverlap(current.title, next.title));
     }
 
-    // Same location? No travel needed.
-    if (isSameLocation(current.resolvedLocation!, next.resolvedLocation!)) {
+    // Same location -- no travel needed
+    if (isSameLocation(curLoc, nextLoc)) {
       continue;
     }
 
-    // Short gap or gap too small for base return: always go direct
+    // Short gap -- go direct, no base return
     if (gapMinutes < MIN_GAP_FOR_BASE_CONSIDERATION) {
       onProgress?.(
-        `Suche Verbindung: ${current.resolvedLocation!.name} → ${next.resolvedLocation!.name}...`
+        `Suche Verbindung: ${curLoc.name} → ${nextLoc.name}...`
       );
       const segment = await calculateSegment(
-        current.resolvedLocation!,
-        next.resolvedLocation!,
+        curLoc,
+        nextLoc,
         next.startTime,
         config.bufferMinutes,
         true,
         'travel',
-        current.endTime // don't depart before this appointment ends!
+        current.endTime // earliest departure: when current appointment ends
       );
       segments.push(segment);
       if (segment.status === 'impossible') {
-        warnings.push(`Verbindung zu "${next.title}" ist zeitlich nicht machbar!`);
+        warnings.push(t.errors.connectionImpossible(next.title));
       }
       continue;
     }
 
-    // Larger gap: evaluate both strategies
+    // Larger gap: evaluate direct vs. base-return strategies
     const baseLocation = getBaseLocation(current.endTime, config);
-    const alreadyAtBase = isSameLocation(current.resolvedLocation!, baseLocation);
-    const nextIsBase = isSameLocation(next.resolvedLocation!, baseLocation);
+    const alreadyAtBase = isSameLocation(curLoc, baseLocation);
+    const nextIsBase = isSameLocation(nextLoc, baseLocation);
 
-    // Strategy A: Go direct (earliest departure = current appointment end)
+    // Strategy A: go direct (earliest departure = current appointment end)
     onProgress?.(
-      `Suche Verbindung: ${current.resolvedLocation!.name} → ${next.resolvedLocation!.name}...`
+      `Suche Verbindung: ${curLoc.name} → ${nextLoc.name}...`
     );
     const directSegment = await calculateSegment(
-      current.resolvedLocation!,
-      next.resolvedLocation!,
+      curLoc,
+      nextLoc,
       next.startTime,
       config.bufferMinutes,
       true,
@@ -205,7 +213,7 @@ export async function calculateDayPlan(
       current.endTime
     );
 
-    // Strategy B: Return to base, then go to next
+    // Strategy B: return to base, then go to next
     let useBase = false;
     let toBaseSegment: RouteSegment | null = null;
     let fromBaseSegment: RouteSegment | null = null;
@@ -215,9 +223,9 @@ export async function calculateDayPlan(
         `Prüfe Rückkehr zu ${baseLocation.name}...`
       );
 
-      // Step 1: current -> base (depart after appointment ends)
+      // Step 1: current -> base (depart after current appointment ends)
       toBaseSegment = await calculateSegment(
-        current.resolvedLocation!,
+        curLoc,
         baseLocation,
         current.endTime,
         0,
@@ -225,13 +233,13 @@ export async function calculateDayPlan(
         'return-to-base'
       );
 
-      // Step 2: base -> next (earliest departure = arrival at base)
+      // Step 2: base -> next appointment (earliest departure = arrival at base)
       const baseArrival = toBaseSegment.status !== 'impossible'
         ? toBaseSegment.arrivalTime
         : undefined;
       fromBaseSegment = await calculateSegment(
         baseLocation,
-        next.resolvedLocation!,
+        nextLoc,
         next.startTime,
         config.bufferMinutes,
         true,
@@ -239,7 +247,7 @@ export async function calculateDayPlan(
         baseArrival
       );
 
-      // Check temporal consistency: enough dwell time at base?
+      // Check: enough dwell time at base to justify the detour?
       if (toBaseSegment.status !== 'impossible' && fromBaseSegment.status !== 'impossible') {
         const dwellTime = differenceInMinutes(
           fromBaseSegment.departureTime,
@@ -257,20 +265,20 @@ export async function calculateDayPlan(
     } else {
       segments.push(directSegment);
       if (directSegment.status === 'impossible') {
-        warnings.push(`Verbindung zu "${next.title}" ist zeitlich nicht machbar!`);
+        warnings.push(t.errors.connectionImpossible(next.title));
       }
     }
   }
 
-  // Last segment: last appointment -> home
+  // Final segment: last appointment -> home
   const lastApt = validApts[validApts.length - 1];
-  if (!isSameLocation(lastApt.resolvedLocation!, config.homeAddress)) {
+  if (!isSameLocation(lastApt.resolvedLocation, config.homeAddress)) {
     onProgress?.(
-      `Suche Verbindung: ${lastApt.resolvedLocation!.name} → ${config.homeAddress.name}...`
+      `Suche Verbindung: ${lastApt.resolvedLocation.name} → ${config.homeAddress.name}...`
     );
     segments.push(
       await calculateSegment(
-        lastApt.resolvedLocation!,
+        lastApt.resolvedLocation,
         config.homeAddress,
         lastApt.endTime,
         0,

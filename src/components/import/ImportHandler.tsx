@@ -61,8 +61,15 @@ export function ImportHandler() {
 
       // 3. Check File Handler API
       if ('launchQueue' in globalThis) {
-        (globalThis as any).launchQueue.setConsumer(async (launchParams: any) => {
-          if (launchParams.files?.length > 0) {
+        interface LaunchParams {
+          files?: FileSystemFileHandle[];
+        }
+        interface LaunchQueue {
+          setConsumer: (consumer: (params: LaunchParams) => Promise<void>) => void;
+        }
+        const queue = (globalThis as unknown as { launchQueue: LaunchQueue }).launchQueue;
+        queue.setConsumer(async (launchParams: LaunchParams) => {
+          if (launchParams.files && launchParams.files.length > 0) {
             const fileHandle = launchParams.files[0];
             const file = await fileHandle.getFile();
             const content = await file.text();

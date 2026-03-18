@@ -2,6 +2,7 @@ import type { DayPlan } from '../../types/index.ts';
 import { formatDate } from '../../lib/planner/time-utils.ts';
 import { RouteSegmentCard } from './RouteSegment.tsx';
 import { AppointmentCard } from './AppointmentCard.tsx';
+import { t } from '../../lib/i18n/index.ts';
 
 interface DayTimelineProps {
   plan: DayPlan;
@@ -63,7 +64,7 @@ export function DayTimeline({ plan }: DayTimelineProps) {
           {formatDate(plan.date)}
         </h2>
         <p className="text-xs text-slate dark:text-dark-muted font-mono mt-0.5">
-          {sortedAppointments.length} Termine &middot; {segments.length} Verbindungen
+          {sortedAppointments.length} {t.timeline.appointments} &middot; {segments.length} {t.timeline.connections}
         </p>
       </div>
 
@@ -81,7 +82,7 @@ export function DayTimeline({ plan }: DayTimelineProps) {
       <div className="relative">
         <div className="relative pl-10 pb-1">
           <div className="absolute left-[0.75rem] top-1 w-3 h-3 rounded-sm bg-anthracite dark:bg-dark-text" />
-          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">Start: Zuhause</p>
+          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">{t.timeline.startHome}</p>
         </div>
 
         {timelineItems.map((item, i) => {
@@ -102,7 +103,7 @@ export function DayTimeline({ plan }: DayTimelineProps) {
 
         <div className="relative pl-10 pt-2">
           <div className="absolute left-[0.75rem] top-3 w-3 h-3 rounded-sm bg-anthracite dark:bg-dark-text" />
-          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">Ende: Zuhause</p>
+          <p className="text-xs font-medium text-anthracite dark:text-dark-text font-mono">{t.timeline.endHome}</p>
         </div>
       </div>
     </div>

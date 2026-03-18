@@ -46,7 +46,7 @@ const DEFAULT_CONFIG: UserConfig = {
     stationId: '8591123',
   },
   workSchedule: {
-    days: [1, 2, 3, 4, 5], // Mo-Fr
+    days: [1, 2, 3, 4, 5], // Mon-Fri
     startTime: '08:00',
     endTime: '17:00',
   },

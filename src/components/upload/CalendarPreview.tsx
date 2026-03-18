@@ -1,5 +1,6 @@
 import type { Appointment } from '../../types/index.ts';
 import { formatTimeHHMM } from '../../lib/planner/time-utils.ts';
+import { t } from '../../lib/i18n/index.ts';
 
 interface CalendarPreviewProps {
   appointments: Appointment[];
@@ -16,7 +17,7 @@ export function CalendarPreview({ appointments, onRemove }: CalendarPreviewProps
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-medium text-anthracite dark:text-dark-text">
-        {appointments.length} Termin{appointments.length !== 1 ? 'e' : ''} erkannt
+        {t.import.appointmentsFound(appointments.length)}
       </h3>
       <div className="space-y-2">
         {sorted.map((apt) => (
@@ -29,7 +30,7 @@ export function CalendarPreview({ appointments, onRemove }: CalendarPreviewProps
                 <span className="font-mono text-sm text-sbb-red font-bold">
                   {formatTimeHHMM(apt.startTime)}
                 </span>
-                <span className="text-slate dark:text-dark-muted text-xs">–</span>
+                <span className="text-slate dark:text-dark-muted text-xs">&ndash;</span>
                 <span className="font-mono text-sm text-slate dark:text-dark-muted">
                   {formatTimeHHMM(apt.endTime)}
                 </span>

@@ -3,6 +3,7 @@ import type { DayPlan } from '../../types/index.ts';
 import { generateICS } from '../../lib/export/ics-export.ts';
 import { generateText } from '../../lib/export/text-format.ts';
 import { formatDateISO } from '../../lib/planner/time-utils.ts';
+import { t } from '../../lib/i18n/index.ts';
 
 interface PlanActionsProps {
   plan: DayPlan;
@@ -29,7 +30,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
           title: 'pendli Tagesplan',
           files: [file],
         });
-        showToast('Exportiert');
+        showToast(t.result.exported);
         return;
       } catch (e) {
         // User cancelled or share with files not supported — fall through to download
@@ -44,7 +45,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
     a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
-    showToast('Exportiert');
+    showToast(t.result.exported);
   }
 
   async function handleTextShare() {
@@ -57,7 +58,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
           title: 'pendli Tagesplan',
           text,
         });
-        showToast('Geteilt');
+        showToast(t.result.shared);
         return;
       } catch (e) {
         if (e instanceof Error && e.name === 'AbortError') return;
@@ -67,7 +68,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
     // Fallback: copy to clipboard
     try {
       await navigator.clipboard.writeText(text);
-      showToast('Kopiert');
+      showToast(t.result.copied);
     } catch {
       // Last resort: prompt
       prompt('Plan kopieren:', text);
@@ -85,7 +86,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          In Kalender
+          {t.result.toCalendar}
         </button>
         <button
           type="button"
@@ -95,7 +96,7 @@ export function PlanActions({ plan }: PlanActionsProps) {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
           </svg>
-          Teilen
+          {t.result.share}
         </button>
       </div>
 

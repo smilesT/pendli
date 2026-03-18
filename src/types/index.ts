@@ -23,7 +23,7 @@ export interface UserConfig {
 }
 
 export interface WorkSchedule {
-  days: number[]; // 0=So, 1=Mo, ..., 6=Sa
+  days: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
   startTime: string; // "08:00"
   endTime: string; // "17:00"
 }

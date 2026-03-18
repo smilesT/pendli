@@ -7,7 +7,7 @@ export interface ParseResult {
   warnings: string[];
 }
 
-// Flexible header mapping (case-insensitive, multi-language)
+// Flexible header mapping (case-insensitive, multilingual)
 const HEADER_MAP: Record<string, string[]> = {
   date: ['datum', 'date', 'tag', 'day'],
   startTime: ['startzeit', 'start', 'starttime', 'von', 'from', 'begin', 'beginn'],
@@ -30,7 +30,7 @@ function findColumn(
 }
 
 function parseDate(dateStr: string, timeStr: string): Date {
-  // Support formats: YYYY-MM-DD, DD.MM.YYYY, DD/MM/YYYY
+  // Supported formats: YYYY-MM-DD, DD.MM.YYYY, DD/MM/YYYY
   let year: number, month: number, day: number;
 
   if (dateStr.includes('-')) {

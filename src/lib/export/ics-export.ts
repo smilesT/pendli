@@ -3,10 +3,10 @@ import type { DayPlan, Connection } from '../../types/index.ts';
 /**
  * Generate a .ics (iCalendar) file string from a DayPlan.
  *
- * Framework-agnostic, no DOM access, no date-fns.
+ * Framework-agnostic, pure function.
  */
 
-// ── helpers ──────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────
 
 /** Format a Date as iCal local datetime: YYYYMMDDTHHMMSS */
 function fmtIcalDate(d: Date): string {
@@ -40,7 +40,7 @@ function escapeText(text: string): string {
 }
 
 /**
- * Fold lines to max 75 octets (RFC 5545 §3.1).
+ * Fold lines to max 75 octets per RFC 5545 section 3.1.
  * Continuation lines start with a single SPACE.
  */
 function foldLine(line: string): string {
@@ -51,7 +51,7 @@ function foldLine(line: string): string {
   parts.push(line.slice(0, MAX));
   let pos = MAX;
   while (pos < line.length) {
-    // continuation lines: SPACE + up to 74 chars (SPACE counts as 1 octet)
+    // Continuation line: SPACE + up to 74 chars (SPACE counts as 1 octet)
     parts.push(' ' + line.slice(pos, pos + MAX - 1));
     pos += MAX - 1;
   }
@@ -63,20 +63,20 @@ function line(content: string): string {
   return foldLine(content) + '\r\n';
 }
 
-/** Transport emoji based on line name / category. */
+/** Transport emoji based on line name or category. */
 function transportEmoji(lineName: string): string {
   const upper = lineName.toUpperCase();
   if (upper.startsWith('BUS') || upper.startsWith('NFB')) return '\u{1F68C}'; // bus
   if (upper.startsWith('TRAM') || upper.startsWith('T ')) return '\u{1F68B}'; // tram
   if (upper.startsWith('IC') || upper.startsWith('IR') || upper.startsWith('EC') || upper.startsWith('TGV'))
     return '\u{1F684}'; // high-speed
-  // S-Bahn, RE, R, default
+  // S-Bahn, regional, default
   return '\u{1F686}'; // train
 }
 
 /** Build a simple UID from a seed string. */
 function uid(seed: string): string {
-  // Deterministic-ish UID so re-exports produce the same UIDs
+  // Deterministic UID so re-exports produce stable identifiers
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {
     hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0;
@@ -109,7 +109,7 @@ const VTIMEZONE = [
   .map((l) => l + '\r\n')
   .join('');
 
-// ── connection description ───────────────────────────────────────────
+// ── Connection description ───────────────────────────────────────────
 
 function connectionDescription(connections: Connection[]): string {
   return connections
@@ -124,7 +124,7 @@ function connectionDescription(connections: Connection[]): string {
     .join('\n');
 }
 
-// ── public API ───────────────────────────────────────────────────────
+// ── Public API ───────────────────────────────────────────────────────
 
 export function generateICS(plan: DayPlan): string {
   const now = new Date();
@@ -132,7 +132,7 @@ export function generateICS(plan: DayPlan): string {
 
   let ics = '';
 
-  // Calendar header
+  // Calendar header block
   ics += line('BEGIN:VCALENDAR');
   ics += line('VERSION:2.0');
   ics += line('PRODID:-//pendli//pendli//DE');
@@ -142,7 +142,7 @@ export function generateICS(plan: DayPlan): string {
   ics += line('X-WR-TIMEZONE:Europe/Zurich');
   ics += VTIMEZONE;
 
-  // Appointments as VEVENTs
+  // Appointments as VEVENT blocks
   for (const apt of plan.appointments) {
     ics += line('BEGIN:VEVENT');
     ics += line(`DTSTAMP:${stamp}`);
@@ -156,7 +156,7 @@ export function generateICS(plan: DayPlan): string {
     ics += line('END:VEVENT');
   }
 
-  // Route segments as travel VEVENTs
+  // Route segments as travel VEVENT blocks
   for (const seg of plan.segments) {
     if (seg.segmentType === 'wait') continue;
     if (seg.connections.length === 0) continue;
@@ -178,7 +178,7 @@ export function generateICS(plan: DayPlan): string {
     ics += line(`LOCATION:${escapeText(fromName)}`);
     ics += line('CATEGORIES:Reise');
 
-    // VALARM: 5 minutes before departure
+    // Alarm: 5 minutes before departure
     ics += line('BEGIN:VALARM');
     ics += line('TRIGGER:-PT5M');
     ics += line('ACTION:DISPLAY');

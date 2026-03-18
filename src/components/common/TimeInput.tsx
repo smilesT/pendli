@@ -26,7 +26,7 @@ export function TimeInput({ label, value, onChange }: TimeInputProps) {
         maxLength={5}
         value={value}
         onChange={handleChange}
-        className="w-20 px-3 py-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg text-anthracite dark:text-dark-text font-mono text-sm text-center focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red transition-colors"
+        className="w-20 px-3 py-2 input-base font-mono text-center transition-colors"
       />
     </div>
   );

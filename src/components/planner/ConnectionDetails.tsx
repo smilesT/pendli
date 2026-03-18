@@ -1,5 +1,6 @@
 import type { Connection } from '../../types/index.ts';
 import { formatTimeHHMM, differenceInMinutes } from '../../lib/planner/time-utils.ts';
+import { t } from '../../lib/i18n/index.ts';
 
 interface ConnectionDetailsProps {
   connections: Connection[];
@@ -9,7 +10,7 @@ export function ConnectionDetails({ connections }: ConnectionDetailsProps) {
   if (connections.length === 0) {
     return (
       <p className="text-xs text-slate dark:text-dark-muted italic px-2 py-1">
-        Keine ÖV-Verbindung gefunden
+        {t.timeline.noConnection}
       </p>
     );
   }
@@ -26,7 +27,7 @@ export function ConnectionDetails({ connections }: ConnectionDetailsProps) {
               🚶
             </span>
             <span>
-              {differenceInMinutes(conn.arrivalTime, conn.departureTime)} Min. Fussweg → {conn.arrival}
+              {t.timeline.walkMinutes(differenceInMinutes(conn.arrivalTime, conn.departureTime))} → {conn.arrival}
             </span>
           </div>
         ) : (

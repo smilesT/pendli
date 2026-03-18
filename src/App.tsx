@@ -9,6 +9,8 @@ import { ManualEntryForm } from './components/upload/ManualEntryForm.tsx';
 import { DayTimeline } from './components/planner/DayTimeline.tsx';
 import { PlanActions } from './components/planner/PlanActions.tsx';
 import { ImportHandler } from './components/import/ImportHandler.tsx';
+import { Button } from './components/common/Button.tsx';
+import { t } from './lib/i18n/index.ts';
 import type { ResolvedLocation, UserConfig, WorkSchedule, Appointment } from './types/index.ts';
 import { useState } from 'react';
 
@@ -49,9 +51,9 @@ function SetupStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">Einrichtung</h2>
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">{t.setup.title}</h2>
         <p className="text-sm text-slate dark:text-dark-muted">
-          Konfiguriere deine Adressen und Arbeitszeiten.
+          {t.setup.description}
         </p>
       </div>
 
@@ -67,21 +69,21 @@ function SetupStep() {
       <Preferences bufferMinutes={buffer} onChange={setBuffer} />
 
       <div className="flex gap-3">
-        <button
-          type="button"
+        <Button
+          variant="primary"
           onClick={handleNext}
           disabled={!homeAddress || !workAddress}
-          className="flex-1 bg-sbb-red text-white py-3 rounded-lg font-medium hover:bg-sbb-red/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1"
         >
-          Weiter
-        </button>
-        <button
-          type="button"
+          {t.setup.next}
+        </Button>
+        <Button
+          variant="secondary"
           onClick={handleDemo}
-          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
+          className="px-6 text-sm"
         >
-          Demo laden
-        </button>
+          {t.setup.loadDemo}
+        </Button>
       </div>
     </div>
   );
@@ -105,9 +107,9 @@ function ImportStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">Termine importieren</h2>
+        <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-1">{t.import.title}</h2>
         <p className="text-sm text-slate dark:text-dark-muted">
-          Lade deinen Kalender hoch oder füge Termine manuell hinzu.
+          {t.import.description}
         </p>
       </div>
 
@@ -126,21 +128,21 @@ function ImportStep() {
       <ManualEntryForm onAdd={addAppointment} />
 
       <div className="flex gap-3">
-        <button
-          type="button"
+        <Button
+          variant="secondary"
           onClick={() => setStep('setup')}
-          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
+          className="px-6 text-sm"
         >
-          Zurück
-        </button>
-        <button
-          type="button"
+          {t.import.back}
+        </Button>
+        <Button
+          variant="primary"
           onClick={calculatePlan}
           disabled={appointments.length === 0}
-          className="flex-1 bg-sbb-red text-white py-3 rounded-lg font-medium hover:bg-sbb-red/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1"
         >
-          Route berechnen
-        </button>
+          {t.import.calculate}
+        </Button>
       </div>
     </div>
   );
@@ -168,7 +170,7 @@ function PlanStep() {
 
       <div className="text-center">
         <h2 className="text-lg font-bold text-anthracite dark:text-dark-text mb-2">
-          Route wird berechnet...
+          {t.plan.calculating}
         </h2>
         <p className="text-sm text-slate dark:text-dark-muted font-mono animate-pulse">
           {calculationProgress}
@@ -184,13 +186,13 @@ function ResultStep() {
   if (!dayPlan) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate dark:text-dark-muted">Kein Tagesplan vorhanden.</p>
+        <p className="text-slate dark:text-dark-muted">{t.result.noPlan}</p>
         <button
           type="button"
           onClick={() => setStep('setup')}
           className="mt-4 text-sbb-red hover:underline text-sm"
         >
-          Zurück zum Start
+          {t.result.backToStart}
         </button>
       </div>
     );
@@ -202,25 +204,16 @@ function ResultStep() {
 
       <PlanActions plan={dayPlan} />
 
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setAppointments([]);
-            setStep('import');
-          }}
-          className="flex-1 bg-anthracite dark:bg-dark-border text-white py-3 rounded-lg font-medium hover:bg-anthracite/90 dark:hover:bg-dark-muted transition-colors"
-        >
-          Neuen Tag planen
-        </button>
-        <button
-          type="button"
-          onClick={() => setStep('setup')}
-          className="px-6 py-3 border border-gray-300 dark:border-dark-border rounded-lg text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
-        >
-          Einstellungen
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => {
+          setAppointments([]);
+          setStep('import');
+        }}
+        className="w-full bg-anthracite dark:bg-dark-border text-white py-3 rounded-lg font-medium hover:bg-anthracite/90 dark:hover:bg-dark-muted transition-colors"
+      >
+        {t.result.newDay}
+      </button>
     </div>
   );
 }

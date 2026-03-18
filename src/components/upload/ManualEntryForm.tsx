@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Appointment } from '../../types/index.ts';
+import { t } from '../../lib/i18n/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ManualEntryFormProps {
@@ -45,7 +46,7 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
         onClick={() => setIsOpen(true)}
         className="w-full border border-dashed border-gray-300 dark:border-dark-border rounded-lg py-2.5 text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text hover:border-gray-400 dark:hover:border-dark-muted transition-colors"
       >
-        + Termin manuell hinzufügen
+        {t.import.addManual}
       </button>
     );
   }
@@ -54,50 +55,56 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
     <form onSubmit={handleSubmit} className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg p-4 space-y-3">
       <input
         type="text"
-        placeholder="Titel"
+        placeholder={t.import.titlePlaceholder}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 input-base placeholder-slate dark:placeholder-dark-muted"
         required
       />
       <input
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 input-base font-mono"
         required
       />
-      <div className="flex gap-3">
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-2][0-9]:[0-5][0-9]"
-          placeholder="09:00"
-          maxLength={5}
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
-          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
-          required
-        />
-        <span className="self-center text-slate dark:text-dark-muted">–</span>
-        <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-2][0-9]:[0-5][0-9]"
-          placeholder="10:00"
-          maxLength={5}
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
-          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
-          required
-        />
+      <div className="flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <label className="block text-xs text-slate dark:text-dark-muted mb-1">Von</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-2][0-9]:[0-5][0-9]"
+            placeholder="09:00"
+            maxLength={5}
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+            className="w-full px-3 py-2 input-base font-mono text-center"
+            required
+          />
+        </div>
+        <span className="self-end pb-2.5 text-slate dark:text-dark-muted">&ndash;</span>
+        <div className="flex-1 min-w-0">
+          <label className="block text-xs text-slate dark:text-dark-muted mb-1">Bis</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-2][0-9]:[0-5][0-9]"
+            placeholder="10:00"
+            maxLength={5}
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+            className="w-full px-3 py-2 input-base font-mono text-center"
+            required
+          />
+        </div>
       </div>
       <input
         type="text"
-        placeholder="Ort / Adresse"
+        placeholder={t.import.locationPlaceholder}
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text placeholder-slate dark:placeholder-dark-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+        className="w-full px-3 py-2 input-base placeholder-slate dark:placeholder-dark-muted"
         required
       />
       <div className="flex gap-2">
@@ -105,14 +112,14 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
           type="submit"
           className="flex-1 bg-sbb-red text-white py-2 rounded-lg text-sm font-medium hover:bg-sbb-red/90 transition-colors"
         >
-          Hinzufügen
+          {t.import.add}
         </button>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
           className="px-4 py-2 text-sm text-slate dark:text-dark-muted hover:text-anthracite dark:hover:text-dark-text transition-colors"
         >
-          Abbrechen
+          {t.import.cancel}
         </button>
       </div>
     </form>

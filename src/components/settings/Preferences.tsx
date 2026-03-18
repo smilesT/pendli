@@ -1,3 +1,5 @@
+import { t } from '../../lib/i18n/index.ts';
+
 interface PreferencesProps {
   bufferMinutes: number;
   onChange: (minutes: number) => void;
@@ -7,7 +9,7 @@ export function Preferences({ bufferMinutes, onChange }: PreferencesProps) {
   return (
     <div>
       <label className="block text-sm font-medium text-anthracite dark:text-dark-text mb-2">
-        Pufferzeit vor Terminen: <span className="font-mono text-sbb-red">{bufferMinutes} Min.</span>
+        {t.setup.buffer}: <span className="font-mono text-sbb-red">{bufferMinutes} {t.setup.bufferUnit}</span>
       </label>
       <input
         type="range"

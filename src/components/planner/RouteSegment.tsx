@@ -3,6 +3,7 @@ import type { RouteSegment as RouteSegmentType } from '../../types/index.ts';
 import { formatTimeHHMM, formatDateISO, durationString } from '../../lib/planner/time-utils.ts';
 import { StatusBadge } from '../common/StatusBadge.tsx';
 import { ConnectionDetails } from './ConnectionDetails.tsx';
+import { t } from '../../lib/i18n/index.ts';
 
 function buildSbbUrl(segment: RouteSegmentType): string {
   const fromName = segment.from.station || segment.from.name;
@@ -42,7 +43,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
   // Compact route summary
   const routeSummary = segment.connections.length > 0
     ? segment.connections.map((c) => c.isWalk ? '🚶' : c.line).join(' → ')
-    : 'Keine Verbindung';
+    : t.timeline.noConnection;
 
   return (
     <div className="relative pl-10">
@@ -64,7 +65,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
             <span className="font-mono text-sm font-bold text-anthracite dark:text-dark-text">
               {formatTimeHHMM(segment.departureTime)}
             </span>
-            <span className="text-slate dark:text-dark-muted text-xs">→</span>
+            <span className="text-slate dark:text-dark-muted text-xs">&rarr;</span>
             <span className="font-mono text-sm text-slate dark:text-dark-muted">
               {formatTimeHHMM(segment.arrivalTime)}
             </span>
@@ -76,7 +77,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
           <span className="text-xs text-anthracite dark:text-dark-text truncate">
             {segment.from.name}
           </span>
-          <span className="text-slate dark:text-dark-muted text-xs flex-shrink-0">→</span>
+          <span className="text-slate dark:text-dark-muted text-xs flex-shrink-0">&rarr;</span>
           <span className="text-xs text-anthracite dark:text-dark-text truncate">
             {segment.to.name}
           </span>
@@ -107,7 +108,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M5 1H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Auf SBB ansehen
+              {t.timeline.viewOnSbb}
             </a>
           </div>
         )}

@@ -1,5 +1,6 @@
 import type { WorkSchedule as WorkScheduleType } from '../../types/index.ts';
 import { TimeInput } from '../common/TimeInput.tsx';
+import { t } from '../../lib/i18n/index.ts';
 
 interface WorkScheduleProps {
   schedule: WorkScheduleType;
@@ -7,13 +8,13 @@ interface WorkScheduleProps {
 }
 
 const DAYS = [
-  { value: 1, label: 'Mo' },
-  { value: 2, label: 'Di' },
-  { value: 3, label: 'Mi' },
-  { value: 4, label: 'Do' },
-  { value: 5, label: 'Fr' },
-  { value: 6, label: 'Sa' },
-  { value: 0, label: 'So' },
+  { value: 1, label: t.days.short[1] },
+  { value: 2, label: t.days.short[2] },
+  { value: 3, label: t.days.short[3] },
+  { value: 4, label: t.days.short[4] },
+  { value: 5, label: t.days.short[5] },
+  { value: 6, label: t.days.short[6] },
+  { value: 0, label: t.days.short[0] },
 ];
 
 export function WorkScheduleConfig({ schedule, onChange }: WorkScheduleProps) {
@@ -28,7 +29,7 @@ export function WorkScheduleConfig({ schedule, onChange }: WorkScheduleProps) {
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-anthracite dark:text-dark-text mb-2">
-          Arbeitstage
+          {t.setup.workDays}
         </label>
         <div className="flex gap-2">
           {DAYS.map((day) => (
@@ -50,12 +51,12 @@ export function WorkScheduleConfig({ schedule, onChange }: WorkScheduleProps) {
 
       <div className="flex gap-4">
         <TimeInput
-          label="Arbeitsbeginn"
+          label={t.setup.workStart}
           value={schedule.startTime}
           onChange={(startTime) => onChange({ ...schedule, startTime })}
         />
         <TimeInput
-          label="Arbeitsende"
+          label={t.setup.workEnd}
           value={schedule.endTime}
           onChange={(endTime) => onChange({ ...schedule, endTime })}
         />

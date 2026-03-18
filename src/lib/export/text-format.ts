@@ -5,10 +5,10 @@ import { formatTimeHHMM } from '../planner/time-utils.ts';
  * Generate a human-readable text representation of a DayPlan,
  * suitable for sharing via WhatsApp / Telegram / SMS.
  *
- * Framework-agnostic, no DOM access.
+ * Framework-agnostic, pure function.
  */
 
-// ── helpers ──────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────
 
 /** Short German weekday abbreviation. */
 function shortWeekday(date: Date): string {
@@ -24,7 +24,7 @@ function fmtDate(date: Date): string {
   return `${d}.${m}.${y}`;
 }
 
-/** Transport emoji based on the line name. */
+/** Transport emoji based on line name. */
 function transportEmoji(lineName: string): string {
   const upper = lineName.toUpperCase();
   if (upper.startsWith('BUS') || upper.startsWith('NFB')) return '\u{1F68C}';
@@ -36,11 +36,11 @@ function transportEmoji(lineName: string): string {
     upper.startsWith('TGV')
   )
     return '\u{1F684}';
-  // S-Bahn and everything else
+  // S-Bahn, regional, default
   return '\u{1F686}';
 }
 
-/** Duration in human-readable German. */
+/** Duration in human-readable format. */
 function durationText(minutes: number): string {
   if (minutes < 60) return `${minutes} Min.`;
   const h = Math.floor(minutes / 60);
@@ -49,12 +49,12 @@ function durationText(minutes: number): string {
   return `${h} Std. ${m} Min.`;
 }
 
-// ── timeline entry ───────────────────────────────────────────────────
+// ── Timeline entry ───────────────────────────────────────────────────
 
 interface TimelineEntry {
-  /** Sort key (ms since epoch) */
+  /** Sort key (milliseconds since epoch) */
   time: number;
-  /** The rendered line(s) for this entry */
+  /** Rendered line(s) for this entry */
   lines: string[];
 }
 
@@ -71,7 +71,7 @@ function segmentEntries(seg: RouteSegment): TimelineEntry[] {
 
   const main = `${timeStr}  ${emoji} ${fromName} \u2192 ${toName} (${dur})`;
 
-  // Detail line(s) for each connection
+  // Detail lines for each connection
   const details: string[] = seg.connections.map((c) => {
     const platform = c.platform ? ` ab Gl. ${c.platform}` : '';
     const arrTime = formatTimeHHMM(c.arrivalTime);
@@ -90,7 +90,7 @@ function appointmentEntry(apt: Appointment): TimelineEntry {
   };
 }
 
-// ── public API ───────────────────────────────────────────────────────
+// ── Public API ───────────────────────────────────────────────────────
 
 export function generateText(plan: DayPlan): string {
   const entries: TimelineEntry[] = [];
@@ -102,7 +102,7 @@ export function generateText(plan: DayPlan): string {
     entries.push(appointmentEntry(apt));
   }
 
-  // Sort chronologically; appointments before segments at the same time
+  // Sort chronologically; appointments appear before segments at equal times
   entries.sort((a, b) => a.time - b.time);
 
   const wd = shortWeekday(plan.date);

@@ -1,15 +1,16 @@
-import type { AppStep } from '../../lib/store/app-store.ts';
+import { useAppStore, type AppStep } from '../../lib/store/app-store.ts';
 import { useThemeStore } from '../../lib/store/theme-store.ts';
+import { t } from '../../lib/i18n/index.ts';
 
 interface HeaderProps {
   currentStep: AppStep;
 }
 
 const steps: { key: AppStep; label: string }[] = [
-  { key: 'setup', label: 'Setup' },
-  { key: 'import', label: 'Import' },
-  { key: 'plan', label: 'Berechnung' },
-  { key: 'result', label: 'Tagesplan' },
+  { key: 'setup', label: t.steps.setup },
+  { key: 'import', label: t.steps.import },
+  { key: 'plan', label: t.steps.plan },
+  { key: 'result', label: t.steps.result },
 ];
 
 export function Header({ currentStep }: HeaderProps) {
@@ -20,12 +21,16 @@ export function Header({ currentStep }: HeaderProps) {
     <header className="bg-anthracite dark:bg-dark-surface text-warm-white">
       <div className="max-w-3xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold tracking-tight">
-            <span className="text-sbb-red">pendli</span>
-          </h1>
+          <button
+            type="button"
+            onClick={() => useAppStore.getState().setStep('setup')}
+            className="text-xl font-bold tracking-tight text-sbb-red hover:opacity-80 transition-opacity"
+          >
+            {t.app.name}
+          </button>
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate font-mono uppercase tracking-wider hidden sm:inline">
-              OeV-Tagesplaner
+              {t.app.tagline}
             </span>
             <button
               type="button"

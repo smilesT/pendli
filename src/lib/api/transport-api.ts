@@ -8,7 +8,7 @@ import type {
 
 const BASE_URL = 'https://transport.opendata.ch/v1';
 
-// --- Rate Limiting ---
+// --- Rate limiting ---
 const MAX_CONCURRENT = 3;
 const DELAY_MS = 500;
 let activeRequests = 0;
@@ -41,7 +41,7 @@ async function rateLimitedFetch(url: string): Promise<Response> {
   try {
     const response = await fetch(url);
     if (response.status === 429) {
-      // Rate limited — wait and retry once
+      // Rate-limited — wait and retry once
       await new Promise((r) => setTimeout(r, 2000));
       return await fetch(url);
     }
@@ -51,7 +51,7 @@ async function rateLimitedFetch(url: string): Promise<Response> {
   }
 }
 
-// --- Location Search ---
+// --- Location search ---
 const locationCache = new Map<string, TransportLocation[]>();
 
 export async function searchLocations(
@@ -75,7 +75,7 @@ export async function searchLocations(
   }
 }
 
-// --- Debounced Location Search ---
+// --- Debounced location search ---
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function debouncedSearchLocations(
@@ -90,36 +90,36 @@ export function debouncedSearchLocations(
   }, delay);
 }
 
-// --- Simplify address for better API hits ---
+// --- Simplify address for better API matches ---
 function simplifyQuery(query: string): string[] {
   const queries: string[] = [query];
 
-  // Strip postal codes (4-digit Swiss PLZ)
+  // Strip Swiss postal codes (4-digit PLZ)
   const withoutPlz = query.replace(/\b\d{4}\b/g, '').replace(/,\s*,/g, ',').trim();
   if (withoutPlz !== query) queries.push(withoutPlz);
 
-  // Strip street numbers
+  // Strip house numbers
   const withoutNumbers = withoutPlz.replace(/\b\d+[a-zA-Z]?\b/g, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
   if (withoutNumbers !== withoutPlz) queries.push(withoutNumbers);
 
-  // Just the first part (before first comma) — often the most useful
+  // First part (before first comma) — often most useful
   const firstPart = query.split(',')[0].trim();
   if (firstPart.length >= 3 && !queries.includes(firstPart)) queries.push(firstPart);
 
   return queries;
 }
 
-// --- Resolve Location ---
+// --- Resolve location ---
 export async function resolveLocation(
   query: string
 ): Promise<ResolvedLocation | null> {
   const queryVariants = simplifyQuery(query);
 
-  // First pass: prefer results with valid coordinates
+  // First pass: prefer results with coordinates
   for (const q of queryVariants) {
     const results = await searchLocations(q);
     const withCoords = results.filter(
-      (r) => r.coordinate && r.coordinate.x != null && r.coordinate.y != null
+      (r) => r.coordinate && r.coordinate.x !== null && r.coordinate.y !== null
     );
     if (withCoords.length > 0) {
       const best = withCoords[0];
@@ -133,7 +133,7 @@ export async function resolveLocation(
     }
   }
 
-  // Second pass: accept results without coordinates (name still works for connection search)
+  // Second pass: accept results without coordinates (name suffices for connection search)
   for (const q of queryVariants) {
     const results = await searchLocations(q);
     if (results.length > 0) {
@@ -148,15 +148,15 @@ export async function resolveLocation(
     }
   }
 
-  // Last resort: extract city name from address parts and search as station
+  // Last resort: extract city name from address parts and search as a station
   const parts = query.split(',').map((p) => p.trim());
   for (const part of parts.reverse()) {
-    // Skip parts that look like street numbers or PLZ
+    // Skip parts that look like house numbers or postal codes
     const cleaned = part.replace(/\b\d+[a-zA-Z]?\b/g, '').trim();
     if (cleaned.length < 2) continue;
     const results = await searchLocations(cleaned);
     const withCoords = results.filter(
-      (r) => r.coordinate && r.coordinate.x != null && r.coordinate.y != null
+      (r) => r.coordinate && r.coordinate.x !== null && r.coordinate.y !== null
     );
     if (withCoords.length > 0) {
       const best = withCoords[0];
@@ -185,7 +185,7 @@ export function transportLocationToResolved(
   };
 }
 
-// --- Connection Search ---
+// --- Connection search ---
 const connectionCache = new Map<string, Connection[]>();
 
 function connectionCacheKey(
@@ -228,7 +228,7 @@ export async function searchConnections(
   return connections;
 }
 
-// Map API category codes to readable line names
+// Map API category codes to human-readable line names
 function formatLineName(category: string, number: string): string {
   const cat = category.trim();
   const num = number.trim();
@@ -252,27 +252,32 @@ function formatLineName(category: string, number: string): string {
 
 function mapConnection(conn: TransportConnection): Connection[] {
   return conn.sections
-    .filter((s) => (s.journey !== null || s.walk !== null) && s.departure.departure != null && s.arrival.arrival != null)
+    .filter((s) => (s.journey !== null || s.walk !== null) && s.departure.departure !== null && s.arrival.arrival !== null)
     .map((section) => {
+      // departure and arrival are guaranteed non-null by the filter above
+      const depTime = section.departure.departure as string;
+      const arrTime = section.arrival.arrival as string;
+
       if (section.walk !== null) {
         return {
           departure: section.departure.station.name,
           arrival: section.arrival.station.name,
-          departureTime: new Date(section.departure.departure!),
-          arrivalTime: new Date(section.arrival.arrival!),
+          departureTime: new Date(depTime),
+          arrivalTime: new Date(arrTime),
           line: 'Fussweg',
           isWalk: true,
           walkDuration: section.walk.duration,
         };
       }
+      const journey = section.journey;
       return {
         departure: section.departure.station.name,
         arrival: section.arrival.station.name,
-        departureTime: new Date(section.departure.departure!),
-        arrivalTime: new Date(section.arrival.arrival!),
-        line: formatLineName(section.journey!.category, section.journey!.number),
+        departureTime: new Date(depTime),
+        arrivalTime: new Date(arrTime),
+        line: formatLineName(journey?.category ?? '', journey?.number ?? ''),
         platform: section.departure.platform || undefined,
-        operator: section.journey!.operator?.trim() || undefined,
+        operator: journey?.operator?.trim() || undefined,
       };
     });
 }
@@ -284,7 +289,7 @@ export interface ConnectionResult {
 }
 
 // --- Get best connection for a route ---
-// isArrivalTime=true:  find latest departure (after earliestDeparture) that arrives before targetTime
+// isArrivalTime=true:  find latest departure (after earliestDeparture) arriving before targetTime
 // isArrivalTime=false: find earliest arrival departing after targetTime
 export async function getBestConnection(
   from: string,
@@ -317,13 +322,13 @@ export async function getBestConnection(
   if (isArrivalTime) {
     const deadline = targetMs - bufferMs;
 
-    // Filter: only connections that depart AFTER earliestDeparture
+    // Filter: only connections departing after earliestDeparture
     const viable = data.connections.filter((conn) => {
       const dep = new Date(conn.from.departure || '').getTime();
       return dep >= earliestMs;
     });
 
-    // Among viable: pick latest departure that arrives before deadline
+    // Among viable: pick latest departure arriving before deadline
     let best: TransportConnection | null = null;
     for (const conn of viable) {
       const arrival = new Date(conn.to.arrival || '').getTime();
@@ -332,7 +337,7 @@ export async function getBestConnection(
       }
     }
 
-    // Fallback among viable: closest arrival to target
+    // Fallback: closest arrival to target among viable
     if (!best && viable.length > 0) {
       best = viable.reduce((a, b) => {
         const aDiff = targetMs - new Date(a.to.arrival || '').getTime();
@@ -344,8 +349,8 @@ export async function getBestConnection(
       });
     }
 
-    // Last resort: if no viable connections (all depart before earliestDeparture),
-    // we need a second API call starting from earliestDeparture
+    // Last resort: no viable connections (all depart before earliestDeparture),
+    // make a second API call starting from earliestDeparture
     if (!best) {
       const fallbackTime = earliestDeparture
         ? formatTime24(earliestDeparture)
@@ -362,7 +367,7 @@ export async function getBestConnection(
       const response2 = await rateLimitedFetch(url2);
       const data2: ConnectionsResponse = await response2.json();
       if (data2.connections && data2.connections.length > 0) {
-        // Pick the one arriving closest to (but ideally before) target
+        // Pick connection arriving closest to (ideally before) target
         best = data2.connections.reduce((a, b) => {
           const aDiff = targetMs - new Date(a.to.arrival || '').getTime();
           const bDiff = targetMs - new Date(b.to.arrival || '').getTime();
@@ -377,7 +382,7 @@ export async function getBestConnection(
     if (!best) return null;
     return toResult(best);
   } else {
-    // Departing FROM an appointment: pick earliest arrival
+    // Departing from an appointment: pick earliest arrival
     const best = data.connections.reduce((a, b) => {
       const aArr = new Date(a.to.arrival || '').getTime() || Infinity;
       const bArr = new Date(b.to.arrival || '').getTime() || Infinity;

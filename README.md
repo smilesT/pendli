@@ -1,107 +1,109 @@
-# pendli — ÖV-Tagesplaner für die Schweiz
+# pendli — Swiss Public Transport Day Planner
 
-> *"Dein Tag. Deine Termine. Deine optimale Route."*
+> *"Your day. Your appointments. Your optimal route."*
 
-**pendli** (Schweizerdeutsch für "kleiner Pendler") berechnet dir die optimale ÖV-Route durch deinen Tag. Kalender hochladen, Arbeitszeiten konfigurieren — fertig.
+**pendli** (Swiss German diminutive of "commuter") calculates the optimal public transport route through your day. Upload your calendar, configure work hours — done.
 
 ## Features
 
-- **Kalender-Import** — Drag & Drop von `.ics` (Google Calendar, Outlook, Apple) oder `.csv`
-- **Automatische Routen** — Optimale ÖV-Verbindungen via [Swiss Transport API](https://transport.opendata.ch)
-- **Intelligente Basis-Logik** — Erkennt automatisch ob du von Zuhause oder vom Arbeitsort startest
-- **Tages-Timeline** — Visueller Tagesplan mit allen Verbindungen, Umsteige-Details und Pufferzeiten
-- **Status-Bewertung** — Grün/Gelb/Rot-Ampel für jede Verbindung
-- **SBB Deep-Links** — Direkt zur Verbindung auf sbb.ch
-- **Dark Mode** — Automatisch oder manuell umschaltbar
-- **PWA** — Installierbar auf Android/iOS direkt aus dem Browser
+- **Calendar import** — Drag & drop `.ics` (Google Calendar, Outlook, Apple) or `.csv`
+- **Automatic routing** — Optimal connections via [Swiss Transport API](https://transport.opendata.ch)
+- **Smart base logic** — Automatically determines whether you start from home or work
+- **Day timeline** — Visual plan with all connections, transfers, walking segments, and buffer times
+- **Status indicators** — Green/yellow/red for each connection
+- **SBB deep links** — Direct link to the connection on sbb.ch
+- **Share Target** — Receive appointments via Android share sheet
+- **Export** — Share as `.ics` (with travel events) or text (WhatsApp, Telegram)
+- **Dark mode** — Midnight Blue theme, auto-detects system preference
+- **PWA** — Installable on Android/iOS from the browser
 
 ## Tech Stack
 
-| Komponente | Technologie |
-|-----------|-------------|
+| Component | Technology |
+|-----------|-----------|
 | Runtime | Deno 2 |
-| Framework | React 19 + Vite 8 + TypeScript |
+| Framework | React 19, TypeScript |
+| Bundler | Vite 8 |
 | Styling | Tailwind CSS v4 |
 | State | Zustand |
-| ÖV-Daten | [transport.opendata.ch](https://transport.opendata.ch) (kostenlos, kein API-Key) |
-| Kalender-Parsing | ical.js + PapaParse |
-| PWA | vite-plugin-pwa + Workbox |
+| Transit data | [transport.opendata.ch](https://transport.opendata.ch) (free, no API key) |
+| Calendar parsing | ical.js, PapaParse |
+| PWA | vite-plugin-pwa, Workbox |
 
-## Schnellstart
+## Quick Start
 
 ```bash
-# Deno 2 installieren (falls nicht vorhanden)
+# Install Deno 2 (if not present)
 curl -fsSL https://deno.land/install.sh | sh
 
-# Dependencies installieren
+# Install dependencies
 deno install
 
-# Dev-Server starten
+# Start dev server
 deno task dev
 
-# Tests laufen lassen
-deno test src/
+# Run tests
+deno task test
 
-# Production Build
+# Production build
 deno task build
 ```
 
-## Architektur
+## Project Structure
 
 ```
-src/
-├── lib/                    # Framework-agnostisch (kein React!)
-│   ├── api/               # Swiss Transport API Client
-│   ├── parser/            # iCal & CSV Parser
-│   ├── planner/           # Routenberechnung & Zeitlogik
-│   └── store/             # Zustand State Management
-├── components/            # React UI-Komponenten
-│   ├── layout/           # Header, Footer, Layout
-│   ├── settings/         # Adress-Config, Arbeitszeiten
-│   ├── upload/           # File-Upload, Kalender-Vorschau
-│   ├── planner/          # Timeline, Verbindungs-Details
-│   └── common/           # LocationSearch, StatusBadge
-├── types/                # TypeScript Interfaces
-└── test/                 # 207 Deno-Tests
+pendli/
+├── src/
+│   ├── components/
+│   │   ├── common/          # LocationSearch, StatusBadge, TimeInput
+│   │   ├── import/          # ImportHandler (Share Target)
+│   │   ├── layout/          # Header, Footer, Layout
+│   │   ├── planner/         # DayTimeline, RouteSegment, AppointmentCard, PlanActions
+│   │   ├── settings/        # AddressConfig, WorkSchedule, Preferences
+│   │   └── upload/          # FileUploader, CalendarPreview, ManualEntryForm
+│   ├── lib/                 # Framework-agnostic (no React, no DOM)
+│   │   ├── api/             # Swiss Transport API client
+│   │   ├── export/          # ICS export, text format, Google Calendar URLs
+│   │   ├── i18n/            # UI strings (German)
+│   │   ├── parser/          # iCal, CSV, and free-text parsers
+│   │   ├── planner/         # Route calculation, base location logic, time utils
+│   │   └── store/           # Zustand stores (app state, theme)
+│   ├── types/               # TypeScript interfaces
+│   ├── sw-custom.ts         # Service worker (Share Target POST handler)
+│   ├── App.tsx              # Main app with step wizard
+│   └── main.tsx             # Entry point
+├── test/                    # Deno tests (207 tests)
+├── public/                  # Static assets, PWA icons
+├── deno.json                # Config, dependencies, version
+├── vite.config.ts           # Build config, PWA manifest
+└── .github/workflows/       # GitHub Pages deployment
 ```
 
-**Portabilitätsregel:** Alles in `src/lib/` ist framework-agnostisch — kein React, kein DOM. Vorbereitet für spätere Capacitor-Migration zu nativer Android-App.
+**Portability rule:** Everything in `src/lib/` is framework-agnostic — no React imports, no DOM access. Prepared for future Capacitor migration to native Android.
 
-## Routen-Algorithmus
+## Routing Algorithm
 
-1. Termine nach Startzeit sortieren
-2. Für jeden Übergang: Ausgangsort bestimmen (Home/Work basierend auf Arbeitszeit)
-3. **Direkt vs. Rückkehr zur Basis** — Beide Strategien werden berechnet, gewählt wird die sinnvollere (min. 20 Min. Aufenthalt an der Basis, sonst direkt)
-4. **Optimale Verbindung** — Spätestmögliche Abfahrt die rechtzeitig ankommt (nicht die erste!)
-5. **Früheste Abfahrt beachtet** — Keine Verbindungen vor Terminende
-6. Status-Bewertung: ≥15 Min. Puffer = OK, 5–15 Min. = Knapp, <5 Min. = Kritisch
-
-## Testdaten
-
-Die App enthält Demo-Daten (Button "Demo laden") mit 5 Terminen in Zürich:
-
-| Zeit | Termin | Ort |
-|------|--------|-----|
-| 09:00–10:00 | Team Standup | ETH Zürich |
-| 11:30–12:30 | Kundentermin | Paradeplatz, Zürich |
-| 14:00–15:00 | Zahnarzt | Marktgasse, Bern |
-| 17:30–18:30 | Fussball-Training | Sportanlage Buchlern |
-| 20:00–22:00 | Kino | Arena Cinemas Sihlcity |
+1. Sort appointments by start time
+2. For each transition: determine origin (home/work based on work schedule)
+3. **Direct vs. return to base** — Both strategies evaluated; base return only chosen if >= 20 min dwell time at base
+4. **Optimal connection** — Latest departure that arrives on time (not the first result)
+5. **Earliest departure constraint** — No connections before the previous appointment ends
+6. Status: >= 15 min buffer = OK, 5–15 min = tight, < 5 min = critical
 
 ## Tests
 
-207 Tests in 5 Dateien:
-
 ```bash
-deno test src/test/
+deno task test
 ```
 
-- `time-utils.test.ts` (64) — Datums-/Zeitformatierung, Grenzen, Invalid Date
-- `base-location.test.ts` (30) — Arbeitszeit-Logik, Wochenende, Custom-Schedules
-- `csv-parser.test.ts` (41) — Header-Erkennung, Datumsformate, BOM, Stress-Tests
-- `ical-parser.test.ts` (26) — Events, Unicode, VTODO, Fehlerbehandlung
-- `route-calculator.test.ts` (46) — Standort-Vergleich, Algorithmus-Logik, Overlap-Detection
+5 test files covering time utils, base location logic, CSV/iCal parsing, and route calculation.
 
-## Lizenz
+## Deployment
 
-MIT
+Automatic via GitHub Actions on push to `main`. Deployed to GitHub Pages at:
+
+**https://smilest.github.io/pendli/**
+
+## License
+
+GPLv2 — see [LICENSE](LICENSE)

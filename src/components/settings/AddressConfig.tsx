@@ -1,5 +1,6 @@
 import type { ResolvedLocation } from '../../types/index.ts';
 import { LocationSearch } from '../common/LocationSearch.tsx';
+import { t } from '../../lib/i18n/index.ts';
 
 interface AddressConfigProps {
   homeAddress: ResolvedLocation | null;
@@ -17,16 +18,16 @@ export function AddressConfig({
   return (
     <div className="space-y-4">
       <LocationSearch
-        label="Privatadresse"
+        label={t.setup.homeLabel}
         value={homeAddress}
         onChange={onHomeChange}
-        placeholder="z.B. Zürich Altstetten"
+        placeholder={t.setup.homePlaceholder}
       />
       <LocationSearch
-        label="Arbeitsadresse"
+        label={t.setup.workLabel}
         value={workAddress}
         onChange={onWorkChange}
-        placeholder="z.B. ETH Zürich"
+        placeholder={t.setup.workPlaceholder}
       />
     </div>
   );

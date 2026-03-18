@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { parseICalFile } from '../../lib/parser/ical-parser.ts';
 import { parseCSVFile } from '../../lib/parser/csv-parser.ts';
+import { t } from '../../lib/i18n/index.ts';
 import type { Appointment } from '../../types/index.ts';
 
 interface FileUploaderProps {
@@ -27,7 +28,7 @@ export function FileUploader({ onImport }: FileUploaderProps) {
       } else if (file.name.endsWith('.csv')) {
         result = parseCSVFile(content);
       } else {
-        setError('Nur .ics und .csv Dateien werden unterstützt.');
+        setError(t.errors.fileTypeUnsupported);
         return;
       }
 
@@ -79,9 +80,9 @@ export function FileUploader({ onImport }: FileUploaderProps) {
 
         <div className="text-4xl mb-3">{isDragging ? '\u{1F4E5}' : '\u{1F4C5}'}</div>
         <p className="text-sm font-medium text-anthracite dark:text-dark-text">
-          {fileName || 'Kalender-Datei hierher ziehen'}
+          {fileName || t.import.dropzone}
         </p>
-        <p className="text-xs text-slate dark:text-dark-muted mt-1">.ics oder .csv</p>
+        <p className="text-xs text-slate dark:text-dark-muted mt-1">{t.import.dropzoneHint}</p>
       </div>
 
       {error && (

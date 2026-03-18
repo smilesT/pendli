@@ -2,9 +2,13 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import denoConfig from './deno.json' with { type: 'json' };
 
 export default defineConfig({
   base: '/pendli/',
+  define: {
+    __APP_VERSION__: JSON.stringify(denoConfig.version),
+  },
   plugins: [
     react(),
     tailwindcss(),
