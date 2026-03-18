@@ -24,4 +24,17 @@
   - Some results have null coordinates — filter or fallback to city name
 
 ## Timetable Deep Links
-- Use `https://fahrplan.search.ch/{from}/{to}?date=DD.MM.YYYY&time=HH:MM` (NOT sbb.ch — their deeplinks are broken)
+- SBB embedded format works: `https://www.sbb.ch/en?stops={name}_I{id}~{name}_I{id}&time=HH_MM&day=YYYY-MM-DD&moment=dep`
+- search.ch path format for simple names: `https://fahrplan.search.ch/{from}/{to}?date=DD.MM.YYYY&time=HH:MM`
+
+## Versioning
+- Version is shown in Footer.tsx (`v0.2.0` etc.)
+- **Bump version on every user-facing release** before pushing
+- Current: v0.2.0
+
+## Deployment
+- GitHub Pages via GitHub Actions (`.github/workflows/deploy.yml`)
+- Base path: `/pendli/` (set in `vite.config.ts`)
+- URL: https://smilest.github.io/pendli/
+- PWA manifest paths must include `/pendli/` prefix
+- After push: wait ~1-2 min for Actions to deploy

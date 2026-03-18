@@ -3,7 +3,7 @@
     "dev": "deno run -A npm:vite",
     "build": "deno run -A npm:vite build",
     "preview": "deno run -A npm:vite preview",
-    "test": "deno test src/"
+    "test": "deno test test/"
   },
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -16,12 +16,10 @@
     "@types/papaparse": "npm:@types/papaparse@^5.5.2",
     "@types/uuid": "npm:@types/uuid@^11.0.0",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^6.0.1",
-    "date-fns": "npm:date-fns@^4.1.0",
     "ical.js": "npm:ical.js@^2.2.1",
     "papaparse": "npm:papaparse@^5.5.3",
     "react": "npm:react@^19",
     "react-dom": "npm:react-dom@^19",
-    "react-router-dom": "npm:react-router-dom@^7",
     "tailwindcss": "npm:tailwindcss@^4.2.2",
     "uuid": "npm:uuid@^13.0.0",
     "vite-plugin-pwa": "npm:vite-plugin-pwa@^1.2.0",

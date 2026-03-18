@@ -6,7 +6,7 @@ import {
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
-import { parseCSVFile } from "../lib/parser/csv-parser.ts";
+import { parseCSVFile } from "../src/lib/parser/csv-parser.ts";
 
 // ─── Valid CSV with German headers ──────────────────────────────────────────
 

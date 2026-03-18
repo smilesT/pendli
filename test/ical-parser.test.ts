@@ -6,7 +6,7 @@ import {
   assertExists,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
-import { parseICalFile } from "../lib/parser/ical-parser.ts";
+import { parseICalFile } from "../src/lib/parser/ical-parser.ts";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@ import type {
   ResolvedLocation,
   UserConfig,
   Appointment,
-} from "../types/index.ts";
+} from "../src/types/index.ts";
 
 // We cannot easily test calculateDayPlan since it depends on the Transport API.
 // Instead, we test the internal logic by reimplementing isSameLocation (it's not

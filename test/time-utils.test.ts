@@ -16,7 +16,7 @@ import {
   getTimeString,
   formatTime,
   formatDate,
-} from "../lib/planner/time-utils.ts";
+} from "../src/lib/planner/time-utils.ts";
 
 // ─── formatDateISO ──────────────────────────────────────────────────────────
 

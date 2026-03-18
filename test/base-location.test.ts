@@ -2,8 +2,8 @@
 
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
 
-import { getBaseLocation } from "../lib/planner/base-location.ts";
-import type { UserConfig, ResolvedLocation } from "../types/index.ts";
+import { getBaseLocation } from "../src/lib/planner/base-location.ts";
+import type { UserConfig, ResolvedLocation } from "../src/types/index.ts";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
