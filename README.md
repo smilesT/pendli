@@ -2,7 +2,7 @@
 
 > *"Dein Tag. Deine Termine. Deine optimale Route."*
 
-**pendli** (Schweizerdeutsch für "kleiner Pendler") berechnet dir die optimale ÖV-Route durch deinen Tag. Kalender hochladen, Arbeitszeiten konfigurieren, fertig.
+**pendli** (Schweizerdeutsch für "kleiner Pendler") berechnet dir die optimale ÖV-Route durch deinen Tag. Kalender hochladen, Arbeitszeiten konfigurieren — fertig.
 
 ## Features
 
