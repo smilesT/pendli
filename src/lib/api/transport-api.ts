@@ -90,23 +90,86 @@ export function debouncedSearchLocations(
   }, delay);
 }
 
-// --- Simplify address for better API matches ---
-function simplifyQuery(query: string): string[] {
-  const queries: string[] = [query];
+function hasValidCoordinates(loc: TransportLocation): boolean {
+  return (
+    loc.coordinate !== null &&
+    loc.coordinate !== undefined &&
+    loc.coordinate.x !== null &&
+    loc.coordinate.x !== undefined &&
+    loc.coordinate.x !== 0 &&
+    loc.coordinate.y !== null &&
+    loc.coordinate.y !== undefined &&
+    loc.coordinate.y !== 0
+  );
+}
 
-  // Strip Swiss postal codes (4-digit PLZ)
-  const withoutPlz = query.replace(/\b\d{4}\b/g, '').replace(/,\s*,/g, ',').trim();
-  if (withoutPlz !== query) queries.push(withoutPlz);
+// Country names to strip from addresses
+const COUNTRY_NAMES = ['switzerland', 'schweiz', 'suisse', 'svizzera'];
 
-  // Strip house numbers
-  const withoutNumbers = withoutPlz.replace(/\b\d+[a-zA-Z]?\b/g, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
-  if (withoutNumbers !== withoutPlz) queries.push(withoutNumbers);
+// Non-location noise to strip
+const NOISE_PATTERNS = [
+  /\b(room|raum|sitzungszimmer|gebäude|building|department of|büro|office|c\/o)\s+\S+/gi,
+  /\b(mein|dein|unser|meine)\s+\S+/gi,
+];
 
-  // First part (before first comma) — often most useful
-  const firstPart = query.split(',')[0].trim();
-  if (firstPart.length >= 3 && !queries.includes(firstPart)) queries.push(firstPart);
+function preCleanQuery(query: string): string {
+  let cleaned = query;
+  // Strip country names (last part after comma)
+  const parts = cleaned.split(',').map((p) => p.trim());
+  if (parts.length > 1 && COUNTRY_NAMES.includes(parts[parts.length - 1].toLowerCase())) {
+    parts.pop();
+    cleaned = parts.join(', ');
+  }
+  // Strip noise patterns
+  for (const pattern of NOISE_PATTERNS) {
+    cleaned = cleaned.replace(pattern, '');
+  }
+  return cleaned.replace(/\s{2,}/g, ' ').replace(/,\s*,/g, ',').trim();
+}
+
+// Strategy: try progressively simpler queries. City names come before street
+// names because the Transport API resolves city stations more reliably.
+// PLZ+city combos (e.g. "9320 Arbon") are kept because they disambiguate.
+function simplifyQuery(rawQuery: string): string[] {
+  const query = preCleanQuery(rawQuery);
+  const queries: string[] = [];
+  const seen = new Set<string>();
+  const add = (q: string) => {
+    const trimmed = q.replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
+    if (trimmed.length >= 2 && !seen.has(trimmed)) {
+      seen.add(trimmed);
+      queries.push(trimmed);
+    }
+  };
+
+  // 1. Cleaned query
+  add(query);
+
+  // 2. Strip only house numbers (keep PLZ for disambiguation)
+  add(query.replace(/,\s*/g, ' ').replace(/\b\d{1,3}[a-zA-Z]?\b/g, ''));
+
+  // 3. Comma-separated parts reversed (city is usually last in Swiss addresses)
+  //    For each part: try with PLZ, then without numbers
+  const parts = query.split(',').map((p) => p.trim());
+  for (const part of [...parts].reverse()) {
+    add(part); // e.g. "9320 Arbon" — keep PLZ!
+    add(part.replace(/\b\d+[a-zA-Z]?\b/g, '').trim()); // e.g. "Arbon"
+  }
+
+  // 4. Strip ALL numbers as last resort
+  add(query.replace(/\b\d+[a-zA-Z]?\b/g, ''));
 
   return queries;
+}
+
+function toResolved(loc: TransportLocation): ResolvedLocation {
+  return {
+    name: loc.name,
+    latitude: loc.coordinate?.x ?? 0,
+    longitude: loc.coordinate?.y ?? 0,
+    station: loc.name,
+    stationId: loc.id || undefined,
+  };
 }
 
 // --- Resolve location ---
@@ -115,58 +178,22 @@ export async function resolveLocation(
 ): Promise<ResolvedLocation | null> {
   const queryVariants = simplifyQuery(query);
 
-  // First pass: prefer results with coordinates
+  // Try each variant, strongly prefer results with coordinates
   for (const q of queryVariants) {
     const results = await searchLocations(q);
     const withCoords = results.filter(
-      (r) => r.coordinate && r.coordinate.x !== null && r.coordinate.y !== null
+      (r) => hasValidCoordinates(r)
     );
     if (withCoords.length > 0) {
-      const best = withCoords[0];
-      return {
-        name: best.name,
-        latitude: best.coordinate.x,
-        longitude: best.coordinate.y,
-        station: best.name,
-        stationId: best.id || undefined,
-      };
+      return toResolved(withCoords[0]);
     }
   }
 
-  // Second pass: accept results without coordinates (name suffices for connection search)
+  // Fallback: accept first result without coordinates from any variant
   for (const q of queryVariants) {
     const results = await searchLocations(q);
     if (results.length > 0) {
-      const best = results[0];
-      return {
-        name: best.name,
-        latitude: best.coordinate?.x ?? 0,
-        longitude: best.coordinate?.y ?? 0,
-        station: best.name,
-        stationId: best.id || undefined,
-      };
-    }
-  }
-
-  // Last resort: extract city name from address parts and search as a station
-  const parts = query.split(',').map((p) => p.trim());
-  for (const part of parts.reverse()) {
-    // Skip parts that look like house numbers or postal codes
-    const cleaned = part.replace(/\b\d+[a-zA-Z]?\b/g, '').trim();
-    if (cleaned.length < 2) continue;
-    const results = await searchLocations(cleaned);
-    const withCoords = results.filter(
-      (r) => r.coordinate && r.coordinate.x !== null && r.coordinate.y !== null
-    );
-    if (withCoords.length > 0) {
-      const best = withCoords[0];
-      return {
-        name: best.name,
-        latitude: best.coordinate.x,
-        longitude: best.coordinate.y,
-        station: best.name,
-        stationId: best.id || undefined,
-      };
+      return toResolved(results[0]);
     }
   }
 
