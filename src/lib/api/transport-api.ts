@@ -252,16 +252,29 @@ function formatLineName(category: string, number: string): string {
 
 function mapConnection(conn: TransportConnection): Connection[] {
   return conn.sections
-    .filter((s) => s.journey !== null && s.departure.departure != null && s.arrival.arrival != null)
-    .map((section) => ({
-      departure: section.departure.station.name,
-      arrival: section.arrival.station.name,
-      departureTime: new Date(section.departure.departure!),
-      arrivalTime: new Date(section.arrival.arrival!),
-      line: formatLineName(section.journey!.category, section.journey!.number),
-      platform: section.departure.platform || undefined,
-      operator: section.journey!.operator?.trim() || undefined,
-    }));
+    .filter((s) => (s.journey !== null || s.walk !== null) && s.departure.departure != null && s.arrival.arrival != null)
+    .map((section) => {
+      if (section.walk !== null) {
+        return {
+          departure: section.departure.station.name,
+          arrival: section.arrival.station.name,
+          departureTime: new Date(section.departure.departure!),
+          arrivalTime: new Date(section.arrival.arrival!),
+          line: 'Fussweg',
+          isWalk: true,
+          walkDuration: section.walk.duration,
+        };
+      }
+      return {
+        departure: section.departure.station.name,
+        arrival: section.arrival.station.name,
+        departureTime: new Date(section.departure.departure!),
+        arrivalTime: new Date(section.arrival.arrival!),
+        line: formatLineName(section.journey!.category, section.journey!.number),
+        platform: section.departure.platform || undefined,
+        operator: section.journey!.operator?.trim() || undefined,
+      };
+    });
 }
 
 export interface ConnectionResult {

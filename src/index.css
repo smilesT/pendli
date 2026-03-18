@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-sbb-red: #EB0000;
   --color-anthracite: #1A1A2E;
@@ -9,12 +11,12 @@
   --color-warning: #D97706;
   --color-danger: #DC2626;
 
-  --color-dark-bg: #0F0F1A;
-  --color-dark-surface: #1A1A2E;
-  --color-dark-card: #242440;
-  --color-dark-border: #2E2E4A;
-  --color-dark-text: #E8E8F0;
-  --color-dark-muted: #8888A0;
+  --color-dark-bg: #0B1120;
+  --color-dark-surface: #101828;
+  --color-dark-card: #172033;
+  --color-dark-border: #233044;
+  --color-dark-text: #E2E8F0;
+  --color-dark-muted: #6B7FA0;
 
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'Space Mono', 'JetBrains Mono', monospace;

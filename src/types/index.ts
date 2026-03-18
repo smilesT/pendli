@@ -47,6 +47,8 @@ export interface Connection {
   line: string;
   platform?: string;
   operator?: string;
+  isWalk?: boolean;
+  walkDuration?: number;
 }
 
 export interface DayPlan {

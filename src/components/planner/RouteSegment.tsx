@@ -41,7 +41,7 @@ export function RouteSegmentCard({ segment, isReturn }: RouteSegmentProps) {
 
   // Compact route summary
   const routeSummary = segment.connections.length > 0
-    ? segment.connections.map((c) => c.line).join(' → ')
+    ? segment.connections.map((c) => c.isWalk ? '🚶' : c.line).join(' → ')
     : 'Keine Verbindung';
 
   return (

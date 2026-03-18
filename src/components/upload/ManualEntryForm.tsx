@@ -69,18 +69,26 @@ export function ManualEntryForm({ onAdd }: ManualEntryFormProps) {
       />
       <div className="flex gap-3">
         <input
-          type="time"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-2][0-9]:[0-5][0-9]"
+          placeholder="09:00"
+          maxLength={5}
           value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+          onChange={(e) => setStartTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
           required
         />
         <span className="self-center text-slate dark:text-dark-muted">–</span>
         <input
-          type="time"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-2][0-9]:[0-5][0-9]"
+          placeholder="10:00"
+          maxLength={5}
           value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
+          onChange={(e) => setEndTime(e.target.value.replace(/[^0-9:]/g, '').slice(0, 5))}
+          className="flex-1 px-3 py-2 border border-gray-200 dark:border-dark-border bg-white dark:bg-dark-card text-anthracite dark:text-dark-text rounded-lg text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-sbb-red/20 focus:border-sbb-red"
           required
         />
       </div>
